@@ -1,5 +1,8 @@
 # IaC Learning Template - Homebrew Dependencies
 # Install all required tools with: brew bundle
+#
+# NOTE: This Brewfile works on macOS and Linux (via Homebrew on Linux)
+# For Ubuntu/Linux: Docker should be installed via apt, not Homebrew
 
 # === Core Tools ===
 brew "git"                    # Version control
@@ -15,10 +18,12 @@ brew "age"                    # Modern encryption tool
 brew "sops"                   # Secrets OPerationS
 
 # === Container Runtime ===
-# Docker Desktop provides both docker and docker-compose
-# Install from: https://docker.com/products/docker-desktop
-# Or use: brew install --cask docker
-cask "docker" unless system("/usr/local/bin/docker --version")
+# LINUX USERS: Install Docker via your package manager (apt, yum, etc.)
+#   Ubuntu: sudo apt-get install docker.io docker-compose-v2
+#   Or see: https://docs.docker.com/engine/install/ubuntu/
+#
+# MACOS USERS: Install Docker Desktop
+cask "docker" if OS.mac?
 
 # === Code Quality ===
 brew "pre-commit"             # Git pre-commit hooks
