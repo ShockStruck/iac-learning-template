@@ -1,0 +1,287 @@
+---
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+# Validation tasks for IaC learning template
+version: '3'
+
+tasks:
+  # === Comprehensive Validation ===
+  all:
+    desc: "🔍 Run all validation checks"
+    cmds:
+      - task: taskfile
+      - task: sops
+      - task: docker
+      - task: examples
+      - task: health
+      - echo "✅ All validations passed!"
+      
+  # === Task Automation Validation ===
+  taskfile:
+    desc: "⚙️ Validate Taskfile configuration"
+    cmds:
+      - |
+        echo "⚙️ Validating Taskfile configuration..."
+        
+        # Check main Taskfile
+        if [[ -f "{{.ROOT_DIR}}/Taskfile.yml" ]]; then
+          echo "✅ Main Taskfile exists"
+          
+          # Validate YAML syntax
+          if command -v yq >/dev/null 2>&1; then
+            yq eval . "{{.ROOT_DIR}}/Taskfile.yml" >/dev/null && echo "✅ Main Taskfile YAML valid" || echo "❌ Main Taskfile YAML invalid"
+          fi
+        else
+          echo "❌ Main Taskfile missing"
+        fi
+        
+        # Check included taskfiles
+        TASKFILES="
+          .taskfiles/compose/Taskfile.yml
+          .taskfiles/sops/Taskfile.yml
+          .taskfiles/bootstrap/Taskfile.yml
+          .taskfiles/validate/Taskfile.yml
+        "
+        
+        for taskfile in $TASKFILES; do
+          if [[ -f "{{.ROOT_DIR}}/$taskfile" ]]; then
+            echo "✅ $taskfile exists"
+            
+            if command -v yq >/dev/null 2>&1; then
+              yq eval . "{{.ROOT_DIR}}/$taskfile" >/dev/null && echo "✅ $taskfile YAML valid" || echo "❌ $taskfile YAML invalid"
+            fi
+          else
+            echo "❌ $taskfile missing"
+          fi
+        done
+        
+        # Test task execution
+        if command -v task >/dev/null 2>&1; then
+          echo "✅ Task command available"
+          task --list >/dev/null && echo "✅ Task list command works" || echo "❌ Task list command failed"
+        else
+          echo "❌ Task command not found"
+        fi
+        
+  # === SOPS Validation ===
+  sops:
+    desc: "🔐 Validate SOPS secrets management"
+    cmds:
+      - |
+        echo "🔐 Validating SOPS setup..."
+        
+        # Check Age key
+        if [[ -f "{{.ROOT_DIR}}/.secrets/age.key" ]]; then
+          echo "✅ Age key exists"
+          
+          # Validate key format
+          if grep -q "AGE-SECRET-KEY-" "{{.ROOT_DIR}}/.secrets/age.key"; then
+            echo "✅ Age key format valid"
+          else
+            echo "❌ Age key format invalid"
+          fi
+        else
+          echo "❌ Age key missing"
+        fi
+        
+        # Check SOPS config
+        if [[ -f "{{.ROOT_DIR}}/.sops.yaml" ]]; then
+          echo "✅ SOPS config exists"
+          
+          if command -v yq >/dev/null 2>&1; then
+            yq eval . "{{.ROOT_DIR}}/.sops.yaml" >/dev/null && echo "✅ SOPS config YAML valid" || echo "❌ SOPS config YAML invalid"
+          fi
+        else
+          echo "❌ SOPS config missing"
+        fi
+        
+        # Check encrypted files
+        encrypted_files=$(find "{{.ROOT_DIR}}/secrets" -name "*.sops.*" -exec grep -l "sops:" {} \; 2>/dev/null || true)
+        if [[ -n "$encrypted_files" ]]; then
+          echo "✅ Encrypted files found"
+          
+          # Test decryption
+          if command -v sops >/dev/null 2>&1; then
+            for file in $encrypted_files; do
+              if sops --decrypt "$file" >/dev/null 2>&1; then
+                echo "✅ Can decrypt: $(basename "$file")"
+              else
+                echo "❌ Cannot decrypt: $(basename "$file")"
+              fi
+            done
+          else
+            echo "⚠️  SOPS command not available for decryption test"
+          fi
+        else
+          echo "⚠️  No encrypted files found"
+        fi
+        
+  # === Docker Validation ===
+  docker:
+    desc: "🐳 Validate Docker setup"
+    cmds:
+      - |
+        echo "🐳 Validating Docker setup..."
+        
+        # Check Docker command
+        if command -v docker >/dev/null 2>&1; then
+          echo "✅ Docker command available: $(docker --version)"
+        else
+          echo "❌ Docker command not found"
+          return 1
+        fi
+        
+        # Check Docker daemon
+        if docker info >/dev/null 2>&1; then
+          echo "✅ Docker daemon running"
+        else
+          echo "❌ Docker daemon not running"
+          return 1
+        fi
+        
+        # Check Docker Compose
+        if docker compose version >/dev/null 2>&1; then
+          echo "✅ Docker Compose available: $(docker compose version --short)"
+        else
+          echo "❌ Docker Compose not available"
+        fi
+        
+        # Check Docker Compose file
+        if [[ -f "{{.ROOT_DIR}}/examples/docker-compose.yml" ]]; then
+          echo "✅ Docker Compose file exists"
+          
+          # Validate compose file syntax
+          if docker compose -f "{{.ROOT_DIR}}/examples/docker-compose.yml" config >/dev/null 2>&1; then
+            echo "✅ Docker Compose file syntax valid"
+          else
+            echo "❌ Docker Compose file syntax invalid"
+          fi
+        else
+          echo "❌ Docker Compose file missing"
+        fi
+        
+  # === Examples Validation ===
+  examples:
+    desc: "📋 Validate example configurations"
+    cmds:
+      - |
+        echo "📋 Validating examples..."
+        
+        # Check examples directory
+        if [[ -d "{{.ROOT_DIR}}/examples" ]]; then
+          echo "✅ Examples directory exists"
+          
+          # List example files
+          example_files=$(find "{{.ROOT_DIR}}/examples" -type f 2>/dev/null || true)
+          if [[ -n "$example_files" ]]; then
+            echo "✅ Example files found:"
+            echo "$example_files" | sed 's|{{.ROOT_DIR}}/examples/|  |g'
+          else
+            echo "⚠️  No example files found"
+          fi
+        else
+          echo "❌ Examples directory missing"
+        fi
+        
+        # Check documentation
+        if [[ -d "{{.ROOT_DIR}}/docs" ]]; then
+          echo "✅ Documentation directory exists"
+          
+          docs=$(find "{{.ROOT_DIR}}/docs" -name "*.md" 2>/dev/null || true)
+          if [[ -n "$docs" ]]; then
+            echo "✅ Documentation files found:"
+            echo "$docs" | sed 's|{{.ROOT_DIR}}/docs/|  |g'
+          else
+            echo "⚠️  No documentation files found"
+          fi
+        else
+          echo "❌ Documentation directory missing"
+        fi
+        
+  # === Health Check ===
+  health:
+    desc: "❤️ System health check"
+    cmds:
+      - |
+        echo "❤️ System health check..."
+        
+        # Check system resources
+        echo "💻 System Information:"
+        echo "  OS: $(uname -s) $(uname -r)"
+        echo "  Architecture: $(uname -m)"
+        
+        # Check disk space
+        if command -v df >/dev/null 2>&1; then
+          echo "  Disk space: $(df -h . | tail -1 | awk '{print $4}') available"
+        fi
+        
+        # Check memory (Linux/macOS)
+        case "$(uname -s)" in
+          Darwin)
+            if command -v vm_stat >/dev/null 2>&1; then
+              echo "  Memory: Available"
+            fi
+            ;;
+          Linux)
+            if [[ -f /proc/meminfo ]]; then
+              mem_available=$(grep MemAvailable /proc/meminfo | awk '{print $2}' || echo "unknown")
+              if [[ "$mem_available" != "unknown" ]]; then
+                echo "  Memory: $((mem_available / 1024)) MB available"
+              fi
+            fi
+            ;;
+        esac
+        
+        # Check network connectivity
+        if ping -c 1 8.8.8.8 >/dev/null 2>&1; then
+          echo "✅ Network connectivity: OK"
+        else
+          echo "❌ Network connectivity: Failed"
+        fi
+        
+        # Check if services are running
+        if docker compose -f "{{.ROOT_DIR}}/examples/docker-compose.yml" ps --services --filter "status=running" 2>/dev/null | grep -q "."; then
+          echo "✅ Docker services: Running"
+          docker compose -f "{{.ROOT_DIR}}/examples/docker-compose.yml" ps --format table
+        else
+          echo "ℹ️  Docker services: Not running (use 'task up' to start)"
+        fi
+        
+  # === Learning Path Validation ===
+  learning:
+    desc: "🎓 Validate learning path progress"
+    cmds:
+      - |
+        echo "🎓 Learning Path Validation..."
+        
+        # Check if basics completed
+        if task --list | grep -q "learn:basics"; then
+          echo "✅ Step 1 (Basics): Task available"
+        else
+          echo "❌ Step 1 (Basics): Task missing"
+        fi
+        
+        # Check if secrets management setup
+        if [[ -f "{{.ROOT_DIR}}/.secrets/age.key" && -f "{{.ROOT_DIR}}/.sops.yaml" ]]; then
+          echo "✅ Step 2 (Secrets): Prerequisites met"
+        else
+          echo "⚠️  Step 2 (Secrets): Run 'task sops:init' first"
+        fi
+        
+        # Check if compose available
+        if [[ -f "{{.ROOT_DIR}}/examples/docker-compose.yml" ]]; then
+          echo "✅ Step 3 (Compose): Prerequisites met"
+        else
+          echo "⚠️  Step 3 (Compose): Docker Compose file missing"
+        fi
+        
+        # Check if automation ready
+        if command -v task >/dev/null 2>&1 && [[ -f "{{.ROOT_DIR}}/Taskfile.yml" ]]; then
+          echo "✅ Step 4 (Automation): Prerequisites met"
+        else
+          echo "⚠️  Step 4 (Automation): Task automation not ready"
+        fi
+        
+        echo ""
+        echo "📚 Next steps:"
+        echo "  task learn:basics       # Start learning path"
+        echo "  task help              # Show all commands"

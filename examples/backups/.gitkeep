@@ -1,0 +1,2 @@
+# Backup directory for database dumps and archives
+# .gitkeep ensures this directory is tracked by git

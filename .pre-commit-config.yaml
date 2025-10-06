@@ -1,0 +1,89 @@
+# IaC Learning Template - Pre-commit Hooks
+# Ensures code quality and security before commits
+
+repos:
+  # === General File Checks ===
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      # Prevent large files from being committed
+      - id: check-added-large-files
+        args: ['--maxkb=500']
+        
+      # Check YAML syntax
+      - id: check-yaml
+        args: ['--unsafe']  # Allow custom tags in docker-compose
+        
+      # Check JSON syntax
+      - id: check-json
+        
+      # Ensure files end with newline
+      - id: end-of-file-fixer
+        
+      # Remove trailing whitespace
+      - id: trailing-whitespace
+        args: ['--markdown-linebreak-ext=md']
+        
+      # Prevent committing to main/master directly
+      - id: no-commit-to-branch
+        args: ['--branch', 'main', '--branch', 'master']
+        
+      # Check for merge conflicts
+      - id: check-merge-conflict
+        
+      # Detect private keys
+      - id: detect-private-key
+        
+      # Check executables have shebang
+      - id: check-executables-have-shebangs
+        
+      # Check shell scripts
+      - id: check-shebang-scripts-are-executable
+        
+  # === Secrets Detection ===
+  - repo: https://github.com/Yelp/detect-secrets
+    rev: v1.4.0
+    hooks:
+      - id: detect-secrets
+        args: 
+          - '--baseline'
+          - '.secrets.baseline'
+          - '--exclude-files'
+          - 'secrets/.*\.sops\..*'
+        exclude: '^secrets/.*\.sops\..*$'
+        
+  # === YAML Linting ===
+  - repo: https://github.com/adrienverge/yamllint
+    rev: v1.33.0
+    hooks:
+      - id: yamllint
+        args:
+          - '--config-data'
+          - '{
+              extends: default,
+              rules: {
+                line-length: {max: 120},
+                document-start: disable,
+                comments: {min-spaces-from-content: 1}
+              }
+            }'
+        files: \.(yaml|yml)$
+        
+  # === Markdown Linting ===
+  - repo: https://github.com/igorshubovych/markdownlint-cli
+    rev: v0.37.0
+    hooks:
+      - id: markdownlint
+        args: ['--fix']
+        
+  # === Shell Script Linting ===
+  - repo: https://github.com/shellcheck-py/shellcheck-py
+    rev: v0.9.0.6
+    hooks:
+      - id: shellcheck
+        args: ['--severity=warning']
+        
+# === Pre-commit Configuration ===
+default_install_hook_types: [pre-commit, pre-push]
+fail_fast: false
+minimum_pre_commit_version: '2.20.0'
