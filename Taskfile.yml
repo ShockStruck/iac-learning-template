@@ -38,37 +38,37 @@ tasks:
     desc: "📚 Step 1: Learn basic IaC concepts with interactive examples"
     cmds:
       - echo "=== Infrastructure as Code Learning Path ==="
-      - echo "📖 Reading: docs/01-iac-basics.md"
-      - echo "🔧 Hands-on: Basic Task automation"
+      - echo "Reading docs/01-iac-basics.md"
+      - echo "Hands-on - Basic Task automation"
       - task: validate:taskfile
-      - echo "✅ Basics complete! Next: task secrets"
+      - echo "Basics complete! Next - task secrets"
 
   secrets:
     desc: "🔐 Step 2: Learn secrets management with SOPS and Age"
     cmds:
       - echo "=== SOPS Secrets Management Learning ==="
-      - echo "📖 Reading: docs/02-secrets-management.md"
-      - echo "🔧 Hands-on: SOPS encryption practice"
+      - echo "Reading docs/02-secrets-management.md"
+      - echo "Hands-on - SOPS encryption practice"
       - task: sops:tutorial
-      - echo "✅ Secrets complete! Next: task compose"
+      - echo "Secrets complete! Next - task compose"
 
   compose:
     desc: "🐳 Step 3: Learn Docker Compose with environment integration"
     cmds:
       - echo "=== Docker Compose Learning ==="
-      - echo "📖 Reading: docs/03-docker-compose.md"
-      - echo "🔧 Hands-on: Compose with secrets substitution"
+      - echo "Reading docs/03-docker-compose.md"
+      - echo "Hands-on - Compose with secrets substitution"
       - task: examples:demo
-      - echo "✅ Compose complete! Next: task automation"
+      - echo "Compose complete! Next - task automation"
 
   automation:
     desc: "⚙️ Step 4: Learn infrastructure automation patterns"
     cmds:
       - echo "=== Infrastructure Automation Learning ==="
-      - echo "📖 Reading: docs/04-automation-patterns.md"
-      - echo "🔧 Hands-on: Advanced Task workflows"
+      - echo "Reading docs/04-automation-patterns.md"
+      - echo "Hands-on - Advanced Task workflows"
       - task: examples:advanced
-      - echo "✅ Automation complete! You've mastered IaC basics!"
+      - echo "Automation complete! You've mastered IaC basics!"
 
   # === Service Management ===
 
@@ -99,14 +99,14 @@ tasks:
     desc: "🛠️ Setup development environment"
     cmds:
       - task: bootstrap:dev
-      - echo "✅ Development environment ready"
+      - echo "Development environment ready"
 
   dev:reset:
     desc: "🔄 Reset development environment"
     cmds:
       - task: compose:down
       - task: sops:reset
-      - echo "✅ Development environment reset"
+      - echo "Development environment reset"
 
   # === Quality Assurance ===
 
@@ -121,13 +121,13 @@ tasks:
     desc: "📖 Generate all documentation"
     cmds:
       - task: readme:generate
-      - echo "📚 Documentation updated"
+      - echo "Documentation updated"
 
   docs:serve:
     desc: "🌐 Serve documentation locally"
     cmds:
-      - echo "📖 Serving documentation at http://localhost:8080"
-      - echo "💡 Tip: Edit docs/ files and refresh browser"
+      - echo "Serving documentation at http://localhost:8080"
+      - echo "Tip - Edit docs/ files and refresh browser"
       - python3 -m http.server 8080 --directory docs
 
   # === Help and Information ===
@@ -137,30 +137,30 @@ tasks:
     cmds:
       - echo "=== IaC Learning Template Help ==="
       - echo ""
-      - echo "🎯 Quick Start:"
+      - echo "Quick Start:"
       - echo "  task start              # Bootstrap everything and start services"
       - echo ""
-      - echo "📚 Learning Path (follow in order):"
+      - echo "Learning Path (follow in order):"
       - echo "  task basics             # Learn IaC fundamentals"
       - echo "  task secrets            # Master SOPS secrets management"
       - echo "  task compose            # Docker Compose with secrets"
       - echo "  task automation         # Advanced automation patterns"
       - echo ""
-      - echo "🔧 Service Management:"
+      - echo "Service Management:"
       - echo "  task up                 # Start all services"
       - echo "  task down               # Stop all services"
       - echo "  task status             # Show service status"
       - echo "  task logs -- <service>  # View service logs"
       - echo ""
-      - echo "🛠️ Development:"
+      - echo "Development:"
       - echo "  task dev:setup          # Setup dev environment"
       - echo "  task check              # Run validation checks"
       - echo ""
-      - echo "📖 Documentation:"
+      - echo "Documentation:"
       - echo "  task docs               # Generate documentation"
       - echo "  task docs:serve         # Serve docs locally"
       - echo ""
-      - echo "🆘 Need help? Check README.md or docs/ folder"
+      - echo "Need help? Check README.md or docs/ folder"
 
   clean:
     desc: "🧹 Clean up all generated files and containers"
@@ -168,4 +168,4 @@ tasks:
       - task: compose:down
       - docker system prune -f --volumes
       - rm -rf .task .secrets/temp .compose-env
-      - echo "✅ Cleanup complete"
+      - echo "Cleanup complete"
