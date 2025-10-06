@@ -1,0 +1,108 @@
+---
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+version: '3'
+
+tasks:
+  up:
+    desc: "Start Docker Compose stack with SOPS secret injection"
+    cmds:
+      - |
+        echo "🚀 Starting IaC Learning Stack..."
+        if grep -q "sops_" {{.ENC_ENV}} 2>/dev/null; then
+          echo "🔐 Using SOPS encrypted secrets"
+          export $(sops --decrypt {{.ENC_ENV}} | grep -v '^#' | xargs) && docker compose -f {{.COMPOSE_FILE}} up -d
+        else
+          echo "📄 Using plain text secrets"
+          set -a && source {{.ENC_ENV}} && set +a && docker compose -f {{.COMPOSE_FILE}} up -d
+        fi
+        echo
+        echo "✅ Stack started successfully!"
+        echo "📊 Check status with: task compose:ps"
+        echo "📋 View logs with: task compose:logs"
+
+  down:
+    desc: "Stop Docker Compose stack"
+    cmds:
+      - |
+        echo "🛑 Stopping IaC Learning Stack..."
+        if grep -q "sops_" {{.ENC_ENV}} 2>/dev/null; then
+          export $(sops --decrypt {{.ENC_ENV}} | grep -v '^#' | xargs) && docker compose -f {{.COMPOSE_FILE}} down
+        else
+          set -a && source {{.ENC_ENV}} && set +a && docker compose -f {{.COMPOSE_FILE}} down
+        fi
+        echo "✅ Stack stopped successfully!"
+
+  ps:
+    desc: "List Docker Compose services and their status"
+    cmds:
+      - |
+        echo "📊 IaC Learning Stack Status:"
+        if grep -q "sops_" {{.ENC_ENV}} 2>/dev/null; then
+          export $(sops --decrypt {{.ENC_ENV}} | grep -v '^#' | xargs) && docker compose -f {{.COMPOSE_FILE}} ps
+        else
+          set -a && source {{.ENC_ENV}} && set +a && docker compose -f {{.COMPOSE_FILE}} ps
+        fi
+
+  logs:
+    desc: "Tail logs (usage: task compose:logs -- <service>)"
+    cmds:
+      - |
+        if [ -n "{{.CLI_ARGS}}" ]; then
+          echo "📋 Tailing logs for service: {{.CLI_ARGS}}"
+        else
+          echo "📋 Tailing logs for all services"
+        fi
+        if grep -q "sops_" {{.ENC_ENV}} 2>/dev/null; then
+          export $(sops --decrypt {{.ENC_ENV}} | grep -v '^#' | xargs) && docker compose -f {{.COMPOSE_FILE}} logs -f {{.CLI_ARGS}}
+        else
+          set -a && source {{.ENC_ENV}} && set +a && docker compose -f {{.COMPOSE_FILE}} logs -f {{.CLI_ARGS}}
+        fi
+
+  restart:
+    desc: "Restart specific service (usage: task compose:restart -- <service>)"
+    cmds:
+      - |
+        if [ -z "{{.CLI_ARGS}}" ]; then
+          echo "❌ Please specify a service to restart"
+          echo "📋 Available services:"
+          task compose:ps
+          exit 1
+        fi
+        echo "🔄 Restarting service: {{.CLI_ARGS}}"
+        if grep -q "sops_" {{.ENC_ENV}} 2>/dev/null; then
+          export $(sops --decrypt {{.ENC_ENV}} | grep -v '^#' | xargs) && docker compose -f {{.COMPOSE_FILE}} restart {{.CLI_ARGS}}
+        else
+          set -a && source {{.ENC_ENV}} && set +a && docker compose -f {{.COMPOSE_FILE}} restart {{.CLI_ARGS}}
+        fi
+        echo "✅ Service {{.CLI_ARGS}} restarted successfully!"
+
+  exec:
+    desc: "Execute command in service container (usage: task compose:exec -- <service> <command>)"
+    cmds:
+      - |
+        if [ -z "{{.CLI_ARGS}}" ]; then
+          echo "❌ Please specify a service and command"
+          echo "📋 Example: task compose:exec -- web bash"
+          exit 1
+        fi
+        args=({{.CLI_ARGS}})
+        service=${args[0]}
+        command=${args[@]:1}
+        echo "🔧 Executing in service $service: $command"
+        if grep -q "sops_" {{.ENC_ENV}} 2>/dev/null; then
+          export $(sops --decrypt {{.ENC_ENV}} | grep -v '^#' | xargs) && docker compose -f {{.COMPOSE_FILE}} exec $service $command
+        else
+          set -a && source {{.ENC_ENV}} && set +a && docker compose -f {{.COMPOSE_FILE}} exec $service $command
+        fi
+
+  build:
+    desc: "Build Docker Compose services"
+    cmds:
+      - |
+        echo "🔨 Building IaC Learning Stack..."
+        if grep -q "sops_" {{.ENC_ENV}} 2>/dev/null; then
+          export $(sops --decrypt {{.ENC_ENV}} | grep -v '^#' | xargs) && docker compose -f {{.COMPOSE_FILE}} build
+        else
+          set -a && source {{.ENC_ENV}} && set +a && docker compose -f {{.COMPOSE_FILE}} build
+        fi
+        echo "✅ Build completed successfully!"

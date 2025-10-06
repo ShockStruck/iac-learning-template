@@ -1,0 +1,6 @@
+# SOPS Configuration
+# Replace with: age-keygen -y .secrets/age.key
+
+creation_rules:
+  - path_regex: .*\.sops\.(yaml|yml|json|env)$
+    age: YOUR_AGE_PUBLIC_KEY_HERE

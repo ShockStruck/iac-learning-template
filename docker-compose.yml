@@ -1,0 +1,230 @@
+---
+# IaC Learning Template - Docker Compose Stack
+# Demonstrates Infrastructure as Code concepts with SOPS secret management
+
+version: '3.8'
+
+networks:
+  app-network:
+    driver: bridge
+  monitoring-network:
+    driver: bridge
+
+volumes:
+  postgres-data:
+  redis-data:
+  grafana-data:
+  prometheus-data:
+
+services:
+  # === WEB APPLICATION TIER ===
+  web:
+    image: nginx:alpine
+    container_name: iac_web
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    networks:
+      - app-network
+      - monitoring-network
+    volumes:
+      - ./examples/web:/usr/share/nginx/html:ro
+      - ./examples/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    environment:
+      - ENV=${ENV:-production}
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.web.rule=Host(`localhost`)"
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # === DATABASE TIER ===
+  database:
+    image: postgres:15-alpine
+    container_name: iac_database
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    networks:
+      - app-network
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./examples/database/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    environment:
+      # SOPS secret substitution examples
+      - POSTGRES_DB=iac_learning
+      - POSTGRES_USER=iac_user
+      - POSTGRES_PASSWORD=${DATABASE_PASSWORD}
+      - POSTGRES_ROOT_PASSWORD=${ROOT_PASSWORD}
+    labels:
+      - "backup.enable=true"
+      - "backup.schedule=0 2 * * *"  # Daily at 2 AM
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U iac_user -d iac_learning"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  # === CACHE TIER ===
+  cache:
+    image: redis:7-alpine
+    container_name: iac_cache
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    networks:
+      - app-network
+    volumes:
+      - redis-data:/data
+      - ./examples/redis/redis.conf:/usr/local/etc/redis/redis.conf:ro
+    command: redis-server /usr/local/etc/redis/redis.conf
+    environment:
+      - ENV=${ENV:-production}
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+
+  # === APPLICATION TIER ===
+  app:
+    image: node:18-alpine
+    container_name: iac_app
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    networks:
+      - app-network
+    volumes:
+      - ./examples/app:/app
+      - /app/node_modules  # Anonymous volume for node_modules
+    working_dir: /app
+    command: >
+      sh -c "npm install --production && 
+             npm start"
+    environment:
+      - NODE_ENV=${ENV:-production}
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+      - DATABASE_URL=postgresql://iac_user:${DATABASE_PASSWORD}@database:5432/iac_learning
+      - REDIS_URL=redis://cache:6379
+      - APP_SECRET_KEY=${APP_SECRET_KEY}
+      - JWT_SECRET=${JWT_SECRET}
+      - EXTERNAL_API_KEY=${EXTERNAL_API_KEY}
+    depends_on:
+      database:
+        condition: service_healthy
+      cache:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  # === MONITORING TIER ===
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: iac_prometheus
+    restart: unless-stopped
+    ports:
+      - "9090:9090"
+    networks:
+      - monitoring-network
+    volumes:
+      - prometheus-data:/prometheus
+      - ./examples/monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=200h'
+      - '--web.enable-lifecycle'
+    environment:
+      - PROMETHEUS_TOKEN=${PROMETHEUS_TOKEN}
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:9090/-/healthy"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: iac_grafana
+    restart: unless-stopped
+    ports:
+      - "3001:3000"
+    networks:
+      - monitoring-network
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./examples/monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD}
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_INSTALL_PLUGINS=grafana-clock-panel,grafana-simple-json-datasource
+    depends_on:
+      prometheus:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:3000/api/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # === UTILITY SERVICES ===
+  backup:
+    image: alpine:latest
+    container_name: iac_backup
+    restart: "no"
+    profiles:
+      - utilities
+    networks:
+      - app-network
+    volumes:
+      - postgres-data:/data/postgres:ro
+      - redis-data:/data/redis:ro
+      - ./backups:/backups
+    command: >
+      sh -c "echo 'Backup service configured but not running by default. 
+             Use: docker-compose run backup to perform backups.'"
+    environment:
+      - BACKUP_RETENTION_DAYS=7
+      - BACKUP_ENCRYPTION_KEY=${APP_SECRET_KEY}
+
+  # === LOAD BALANCER ===
+  loadbalancer:
+    image: traefik:v2.10
+    container_name: iac_loadbalancer
+    restart: unless-stopped
+    profiles:
+      - advanced
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8081:8080"  # Traefik dashboard
+    networks:
+      - app-network
+      - monitoring-network
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./examples/traefik/traefik.yml:/etc/traefik/traefik.yml:ro
+      - ./examples/traefik/dynamic:/etc/traefik/dynamic:ro
+    environment:
+      - TRAEFIK_API_DASHBOARD=true
+      - TRAEFIK_API_INSECURE=true
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.dashboard.rule=Host(`traefik.localhost`)"
+      - "traefik.http.routers.dashboard.service=api@internal"
