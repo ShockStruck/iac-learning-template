@@ -10,7 +10,9 @@ vars:
 tasks:
   keygen:
     desc: "Generate Age key for SOPS encryption"
-    cmd: age-keygen --output {{.AGE_FILE}}
+    cmds:
+      - mkdir -p {{.ROOT_DIR}}/.secrets
+      - age-keygen --output {{.AGE_FILE}}
     status: ["test -f {{.AGE_FILE}}"]
     
   encrypt:
