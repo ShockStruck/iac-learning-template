@@ -1,0 +1,30 @@
+---
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+version: '3'
+
+tasks:
+  generate:
+    desc: "Generate comprehensive README.md documentation"
+    cmds:
+      - task readme:generate
+      - echo "✅ Generated comprehensive README.md"
+
+  update:
+    desc: "Update README.md with current system status"
+    cmds:
+      - |
+        echo "# System Status Update - $(date)" >> README.md
+        echo >> README.md
+        echo "## Current Configuration" >> README.md
+        echo >> README.md
+        echo "\`\`\`" >> README.md
+        task sops:status 2>/dev/null | sed 's/^/  /' >> README.md || echo "  SOPS not configured" >> README.md
+        echo "\`\`\`" >> README.md
+        echo >> README.md
+        echo "✅ Updated README.md with current status"
+
+  clean:
+    desc: "Remove generated README.md"
+    cmds:
+      - rm -f README.md
+      - echo "🧹 Removed generated README.md"

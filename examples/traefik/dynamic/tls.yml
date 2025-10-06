@@ -1,0 +1,21 @@
+# Dynamic TLS configuration for Traefik
+# Defines TLS options and certificates
+
+tls:
+  options:
+    default:
+      minVersion: "VersionTLS12"
+      cipherSuites:
+        - "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384"
+        - "TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305"
+        - "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256"
+        - "TLS_RSA_WITH_AES_256_GCM_SHA384"
+        - "TLS_RSA_WITH_AES_128_GCM_SHA256"
+      clientAuth:
+        clientAuthType: RequestClientCert
+
+  certificates:
+    - certFile: "/etc/traefik/certs/localhost.crt"
+      keyFile: "/etc/traefik/certs/localhost.key"
+      stores:
+        - default

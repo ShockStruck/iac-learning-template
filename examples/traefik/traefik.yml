@@ -1,0 +1,63 @@
+# Traefik configuration for IaC Learning Template
+# Advanced load balancer with automatic service discovery
+
+# Global configuration
+global:
+  checkNewVersion: false
+  sendAnonymousUsage: false
+
+# Entry points
+entryPoints:
+  web:
+    address: ":80"
+  websecure:
+    address: ":443"
+  traefik:
+    address: ":8080"
+
+# API and dashboard
+api:
+  dashboard: true
+  insecure: true  # Only for development
+
+# Providers
+providers:
+  docker:
+    endpoint: "unix:///var/run/docker.sock"
+    exposedByDefault: false
+    network: "iac-learning-template_app-network"
+  file:
+    directory: "/etc/traefik/dynamic"
+    watch: true
+
+# Metrics
+metrics:
+  prometheus:
+    buckets:
+      - 0.1
+      - 0.3
+      - 1.2
+      - 5.0
+
+# Access logs
+accessLog:
+  format: json
+  fields:
+    headers:
+      defaultMode: keep
+      names:
+        Authorization: drop
+        Cookie: drop
+
+# Default TLS configuration
+certificatesResolvers:
+  letsencrypt:
+    acme:
+      email: admin@localhost
+      storage: "/etc/traefik/acme.json"
+      httpChallenge:
+        entryPoint: web
+
+# Pilot token (optional)
+# pilot:
+#   token: "your-pilot-token"
