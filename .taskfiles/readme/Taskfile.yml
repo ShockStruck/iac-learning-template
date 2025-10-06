@@ -1,77 +1,30 @@
 ---
 # yaml-language-server: $schema=https://taskfile.dev/schema.json
-# README generation and documentation tasks
 version: '3'
 
 tasks:
   generate:
-    desc: "📝 Generate README.md from template"
+    desc: "Generate comprehensive README.md documentation"
+    cmds:
+      - task readme:generate
+      - echo "✅ Generated comprehensive README.md"
+
+  update:
+    desc: "Update README.md with current system status"
     cmds:
       - |
-        echo "📝 Generating README.md..."
-        
-        # For now, README is already created
-        # Future enhancement: could use templates + data injection
-        
-        if [[ -f "{{.ROOT_DIR}}/README.md" ]]; then
-          echo "✅ README.md exists"
-          
-          # Validate markdown syntax
-          if command -v markdownlint >/dev/null 2>&1; then
-            markdownlint "{{.ROOT_DIR}}/README.md" --fix || echo "⚠️  Markdown linting issues"
-          fi
-          
-          # Count sections
-          sections=$(grep -c "^##" "{{.ROOT_DIR}}/README.md" || echo "0")
-          echo "📊 README sections: $sections"
-        else
-          echo "❌ README.md missing"
-        fi
-        
-  docs:generate:
-    desc: "📖 Generate all documentation"
+        echo "# System Status Update - $(date)" >> README.md
+        echo >> README.md
+        echo "## Current Configuration" >> README.md
+        echo >> README.md
+        echo "\`\`\`" >> README.md
+        task sops:status 2>/dev/null | sed 's/^/  /' >> README.md || echo "  SOPS not configured" >> README.md
+        echo "\`\`\`" >> README.md
+        echo >> README.md
+        echo "✅ Updated README.md with current status"
+
+  clean:
+    desc: "Remove generated README.md"
     cmds:
-      - task: generate
-      - task: docs:validate
-      
-  docs:validate:
-    desc: "✅ Validate documentation completeness"
-    cmds:
-      - |
-        echo "✅ Validating documentation..."
-        
-        REQUIRED_DOCS="
-          README.md
-          docs/01-iac-basics.md
-          docs/02-secrets-management.md
-          docs/03-docker-compose.md
-          docs/04-automation-patterns.md
-        "
-        
-        missing=0
-        for doc in $REQUIRED_DOCS; do
-          if [[ -f "{{.ROOT_DIR}}/$doc" ]]; then
-            echo "✅ $doc"
-          else
-            echo "❌ $doc (missing)"
-            missing=1
-          fi
-        done
-        
-        if [[ $missing -eq 0 ]]; then
-          echo ""
-          echo "🎉 All documentation present"
-        else
-          echo ""
-          echo "⚠️  Some documentation missing"
-        fi
-        
-  serve:
-    desc: "🌐 Serve documentation locally"
-    cmds:
-      - |
-        echo "🌐 Starting documentation server..."
-        echo "🔗 URL: http://localhost:8000"
-        echo "⏸️  Press Ctrl+C to stop"
-        echo ""
-        cd {{.ROOT_DIR}} && python3 -m http.server 8000
+      - rm -f README.md
+      - echo "🧹 Removed generated README.md"

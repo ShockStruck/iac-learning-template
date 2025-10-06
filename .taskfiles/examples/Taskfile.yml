@@ -1,234 +1,449 @@
 ---
 # yaml-language-server: $schema=https://taskfile.dev/schema.json
-# Example services and demonstrations
 version: '3'
 
 tasks:
-  # === Quick Demo Commands ===
-  up:
-    desc: "🚀 Start example services"
+  list:
+    desc: "List available IaC learning examples"
     cmds:
-      - task: compose:up
-      
-  demo:
-    desc: "🎭 Interactive demo of IaC concepts"
+      - |
+        echo "🏗️  Infrastructure as Code Learning Examples"
+        echo "================================================"
+        echo
+        echo "🔍 Basic Examples:"
+        echo "   • task examples:basic        - Simple web + database stack"
+        echo "   • task examples:secrets      - SOPS secret management demo"
+        echo "   • task examples:monitoring   - Prometheus + Grafana setup"
+        echo
+        echo "🚀 Intermediate Examples:"
+        echo "   • task examples:scaling      - Horizontal scaling patterns"
+        echo "   • task examples:networking   - Custom networks and service discovery"
+        echo "   • task examples:persistence  - Volume and data management"
+        echo
+        echo "🎆 Advanced Examples:"
+        echo "   • task examples:loadbalancer - Traefik reverse proxy"
+        echo "   • task examples:backup       - Automated backup strategies"
+        echo "   • task examples:security     - Security hardening patterns"
+        echo
+        echo "📊 Available Profiles:"
+        echo "   • Default:    web, database, cache, app, monitoring"
+        echo "   • utilities:  + backup services"
+        echo "   • advanced:   + load balancer, advanced networking"
+        echo
+        echo "🚀 Quick Start:"
+        echo "   1. task bootstrap           # Set up everything"
+        echo "   2. task examples:basic      # Start basic stack"
+        echo "   3. Open http://localhost:8080"
+
+  basic:
+    desc: "Start basic web application stack (web + database + cache)"
     cmds:
-      - task: demo:overview
-      - task: demo:secrets
-      - task: demo:services
-      - task: demo:monitoring
-      
+      - task: generate
+      - |
+        echo "🔄 Starting basic IaC learning stack..."
+        echo "📊 Services: web (nginx), database (postgres), cache (redis), app (node.js)"
+        echo
+        COMPOSE_PROFILES="" task compose:up
+        echo
+        echo "✅ Basic stack started successfully!"
+        echo
+        echo "🌐 Access points:"
+        echo "   • Web App:     http://localhost:8080"
+        echo "   • API App:     http://localhost:3000"
+        echo "   • Database:    localhost:5432 (iac_user/[encrypted])"
+        echo "   • Cache:       localhost:6379"
+        echo
+        echo "📋 Learn more:"
+        echo "   • View logs:   task compose:logs"
+        echo "   • Check status: task compose:ps"
+        echo "   • Stop stack:  task compose:down"
+
+  monitoring:
+    desc: "Start full stack with monitoring (Prometheus + Grafana)"
+    cmds:
+      - task: generate
+      - |
+        echo "📊 Starting monitoring stack..."
+        echo "🔍 Services: basic stack + prometheus + grafana"
+        echo
+        COMPOSE_PROFILES="" task compose:up
+        echo
+        echo "✅ Monitoring stack started successfully!"
+        echo
+        echo "🌐 Access points:"
+        echo "   • Web App:      http://localhost:8080"
+        echo "   • API App:      http://localhost:3000"
+        echo "   • Prometheus:   http://localhost:9090"
+        echo "   • Grafana:      http://localhost:3001 (admin/[encrypted])"
+        echo
+        echo "📊 Monitoring features:"
+        echo "   • Application metrics collection"
+        echo "   • Infrastructure health monitoring"
+        echo "   • Custom dashboards and alerts"
+
   advanced:
-    desc: "🔮 Advanced IaC automation examples"
+    desc: "Start advanced stack with load balancer and all features"
     cmds:
-      - task: demo:scaling
-      - task: demo:backup
-      - task: demo:security
-      
-  # === Demo Sections ===
-  demo:overview:
-    desc: "📊 Show infrastructure overview"
+      - task: generate
+      - |
+        echo "🚀 Starting advanced IaC learning stack..."
+        echo "🎆 Services: full stack + traefik load balancer"
+        echo
+        COMPOSE_PROFILES="advanced" task compose:up
+        echo
+        echo "✅ Advanced stack started successfully!"
+        echo
+        echo "🌐 Access points:"
+        echo "   • Load Balancer: http://localhost (Traefik)"
+        echo "   • Traefik UI:    http://localhost:8081"
+        echo "   • Web App:       http://localhost:8080 (direct)"
+        echo "   • Grafana:       http://localhost:3001"
+        echo "   • Prometheus:    http://localhost:9090"
+        echo
+        echo "🚀 Advanced features:"
+        echo "   • Automatic service discovery"
+        echo "   • Load balancing and routing"
+        echo "   • SSL/TLS termination (configured)"
+        echo "   • Health checks and failover"
+
+  secrets:
+    desc: "Demonstrate SOPS secret management"
     cmds:
       - |
-        echo "=== Infrastructure Overview ==="
-        echo ""
-        echo "🏢 Our example infrastructure includes:"
-        echo "  📊 Database: PostgreSQL with initialization"
-        echo "  🚀 Cache: Redis for session storage"
-        echo "  🌐 Web: Nginx reverse proxy"
-        echo "  📈 Monitoring: Prometheus + Grafana"
-        echo "  🔍 Health: Automated health checks"
-        echo ""
-        echo "🔐 Security features:"
-        echo "  ✅ SOPS encrypted secrets"
-        echo "  ✅ Non-root containers"
-        echo "  ✅ Network isolation"
-        echo "  ✅ Resource limits"
-        echo ""
-        
-  demo:secrets:
-    desc: "🔐 Demonstrate secrets management"
+        echo "🔐 SOPS Secret Management Demo"
+        echo "=============================="
+        echo
+        echo "📄 Current secret status:"
+        task sops:status
+        echo
+        echo "🔍 Secret substitution patterns:"
+        echo "   • Database password: ${DATABASE_PASSWORD}"
+        echo "   • App secret key:    ${APP_SECRET_KEY}"
+        echo "   • JWT secret:        ${JWT_SECRET}"
+        echo
+        echo "🔧 Secret management commands:"
+        echo "   • Edit secrets:     task sops:edit -- secrets/secret.sops.env"
+        echo "   • View secrets:     task sops:decrypt -- secrets/secret.sops.env"
+        echo "   • Encrypt secrets:  task sops:encrypt"
+        echo "   • Check health:     task sops:health"
+        echo
+        echo "📊 Docker Compose integration:"
+        echo "   • Secrets are automatically decrypted and injected"
+        echo "   • Environment variables use ${VARIABLE_NAME} syntax"
+        echo "   • No plain text secrets in docker-compose.yml"
+
+  networking:
+    desc: "Explore Docker networking concepts"
+    cmds:
+      - task: generate
+      - |
+        echo "🌐 Docker Networking Learning"
+        echo "============================"
+        echo
+        task compose:up
+        echo
+        echo "🔍 Network topology:"
+        echo "   • app-network:        Frontend and backend services"
+        echo "   • monitoring-network: Prometheus and Grafana"
+        echo
+        echo "🗺 Network inspection commands:"
+        echo "   • List networks:     docker network ls"
+        echo "   • Inspect network:   docker network inspect iac-learning-template_app-network"
+        echo "   • Service discovery: docker exec iac_app nslookup database"
+        echo
+        echo "🔗 Service communication:"
+        echo "   • App → Database:     database:5432"
+        echo "   • App → Cache:        cache:6379"
+        echo "   • Grafana → Prometheus: prometheus:9090"
+
+  persistence:
+    desc: "Explore data persistence and volume management"
+    cmds:
+      - task: generate
+      - |
+        echo "📁 Data Persistence Learning"
+        echo "==========================="
+        echo
+        task compose:up
+        echo
+        echo "🖺 Volume management:"
+        echo "   • postgres-data:    Database persistence"
+        echo "   • redis-data:       Cache persistence"
+        echo "   • grafana-data:     Dashboard configuration"
+        echo "   • prometheus-data:  Metrics storage"
+        echo
+        echo "🔍 Volume inspection commands:"
+        echo "   • List volumes:     docker volume ls"
+        echo "   • Inspect volume:   docker volume inspect iac-learning-template_postgres-data"
+        echo "   • Volume usage:     docker system df -v"
+        echo
+        echo "🔄 Data persistence testing:"
+        echo "   1. Add data to the application"
+        echo "   2. Stop stack: task compose:down"
+        echo "   3. Start stack: task compose:up"
+        echo "   4. Verify data persists"
+
+  backup:
+    desc: "Demonstrate backup strategies"
+    cmds:
+      - task: generate
+      - |
+        echo "💾 Backup Strategy Demo"
+        echo "====================="
+        echo
+        echo "🔄 Starting stack with backup service..."
+        COMPOSE_PROFILES="utilities" task compose:up
+        echo
+        echo "🖺 Backup commands:"
+        echo "   • Run backup:       docker-compose run backup"
+        echo "   • List backups:     ls -la backups/"
+        echo "   • Restore from backup: [manual process]"
+        echo
+        echo "🔐 Backup security:"
+        echo "   • Encrypted with APP_SECRET_KEY"
+        echo "   • Retention: 7 days (configurable)"
+        echo "   • Automated scheduling via cron"
+
+  scaling:
+    desc: "Demonstrate horizontal scaling patterns"
+    cmds:
+      - task: generate
+      - |
+        echo "📈 Horizontal Scaling Demo"
+        echo "========================"
+        echo
+        task compose:up
+        echo
+        echo "🔄 Scaling commands:"
+        echo "   • Scale app:        docker-compose up -d --scale app=3"
+        echo "   • Scale web:        docker-compose up -d --scale web=2"
+        echo "   • Check scaling:    task compose:ps"
+        echo
+        echo "📊 Load balancing:"
+        echo "   • Enable advanced profile for Traefik load balancer"
+        echo "   • Automatic service discovery"
+        echo "   • Health check integration"
+        echo
+        echo "🔧 Try scaling now:"
+        echo "   docker-compose up -d --scale app=2"
+
+  security:
+    desc: "Explore security hardening patterns"
     cmds:
       - |
-        echo "=== Secrets Management Demo ==="
-        echo ""
-        echo "🔑 Age key location: .secrets/age.key"
-        echo "📝 SOPS config: .sops.yaml"
-        echo ""
-        
-        if [[ -f "{{.ROOT_DIR}}/secrets/app.sops.env" ]]; then
-          echo "👀 Encrypted secrets file contents (first 5 lines):"
-          head -5 "{{.ROOT_DIR}}/secrets/app.sops.env"
-          echo "..."
-          echo ""
-          
-          echo "🔓 Decrypted secrets preview:"
-          echo "(Showing non-sensitive fields only)"
-          sops --decrypt "{{.ROOT_DIR}}/secrets/app.sops.env" | grep -E "^(DB_HOST|REDIS_HOST|APP_ENV)=" || echo "No preview available"
-          echo ""
-        fi
-        
-        echo "📚 Learn more: 'task sops:tutorial'"
-        
-  demo:services:
-    desc: "🐳 Demonstrate service orchestration"
+        echo "🔒 Security Hardening Patterns"
+        echo "=============================="
+        echo
+        echo "🔐 Secret management:"
+        echo "   • SOPS encryption for sensitive data"
+        echo "   • Age key-based encryption"
+        echo "   • No plain text secrets in repository"
+        echo
+        echo "🌐 Network security:"
+        echo "   • Isolated networks (app vs monitoring)"
+        echo "   • Internal service communication"
+        echo "   • Minimal port exposure"
+        echo
+        echo "🛡️  Container security:"
+        echo "   • Non-root user execution"
+        echo "   • Read-only file systems where possible"
+        echo "   • Health checks for availability"
+        echo
+        echo "📋 Security checklist:"
+        echo "   • Regular image updates"
+        echo "   • Vulnerability scanning"
+        echo "   • Access logging and monitoring"
+        echo "   • Backup encryption"
+
+  generate:
+    desc: "Generate example configuration files"
     cmds:
+      - mkdir -p examples/{web,app,database,redis,nginx,monitoring/{grafana/provisioning,prometheus},traefik/{dynamic}}
       - |
-        echo "=== Service Orchestration Demo ==="
-        echo ""
+        # Generate web content
+        cat > examples/web/index.html << 'EOF'
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IaC Learning Template</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; background: #f5f5f5; }
+        .container { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        h1 { color: #333; border-bottom: 3px solid #007acc; padding-bottom: 10px; }
+        .service { background: #f8f9fa; padding: 15px; margin: 10px 0; border-radius: 5px; }
+        .status { color: #28a745; font-weight: bold; }
+        a { color: #007acc; text-decoration: none; }
+        a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏗️ Infrastructure as Code Learning Template</h1>
+        <p>Welcome to your IaC learning environment! This stack demonstrates modern infrastructure patterns.</p>
         
-        if docker compose -f "{{.ROOT_DIR}}/examples/docker-compose.yml" ps --services --filter "status=running" 2>/dev/null | grep -q "."; then
-          echo "✅ Services currently running:"
-          docker compose -f "{{.ROOT_DIR}}/examples/docker-compose.yml" ps --format table
-          echo ""
-          
-          echo "🌐 Service endpoints:"
-          echo "  Nginx: http://localhost:8080"
-          echo "  Grafana: http://localhost:3000 (admin/admin)"
-          echo "  Prometheus: http://localhost:9090"
-          echo ""
-          
-          echo "📈 Health check results:"
-          for service in nginx postgres redis prometheus; do
-            if docker compose -f "{{.ROOT_DIR}}/examples/docker-compose.yml" ps --services --filter "status=running" | grep -q "$service"; then
-              echo "  ✅ $service: healthy"
-            else
-              echo "  ❌ $service: not running"
-            fi
-          done
-        else
-          echo "ℹ️  No services running. Start with: task up"
-        fi
+        <div class="service">
+            <h3>🌐 Web Application</h3>
+            <p class="status">✅ Running</p>
+            <p>Static web content served by Nginx</p>
+        </div>
         
-  demo:monitoring:
-    desc: "📈 Demonstrate monitoring setup"
+        <div class="service">
+            <h3>🚀 Node.js API</h3>
+            <p><a href="http://localhost:3000">http://localhost:3000</a></p>
+            <p>RESTful API with database connectivity</p>
+        </div>
+        
+        <div class="service">
+            <h3>📋 Monitoring</h3>
+            <p><a href="http://localhost:9090">Prometheus</a> | <a href="http://localhost:3001">Grafana</a></p>
+            <p>Metrics collection and visualization</p>
+        </div>
+        
+        <div class="service">
+            <h3>🔐 Secret Management</h3>
+            <p>SOPS encryption with Age keys</p>
+            <p>Environment variables injected securely</p>
+        </div>
+        
+        <h2>🚀 Learning Resources</h2>
+        <ul>
+            <li><strong>Task automation:</strong> <code>task --list</code></li>
+            <li><strong>Docker commands:</strong> <code>docker-compose ps</code></li>
+            <li><strong>Logs:</strong> <code>task compose:logs</code></li>
+            <li><strong>Examples:</strong> <code>task examples:list</code></li>
+        </ul>
+    </div>
+</body>
+</html>
+EOF
+        
+        # Generate Node.js app
+        cat > examples/app/package.json << 'EOF'
+{
+  "name": "iac-learning-app",
+  "version": "1.0.0",
+  "description": "IaC Learning Template API",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "pg": "^8.8.0",
+    "redis": "^4.5.1",
+    "cors": "^2.8.5",
+    "helmet": "^6.0.1"
+  }
+}
+EOF
+        
+        cat > examples/app/server.js << 'EOF'
+const express = require('express');
+const cors = require('cors');
+const helmet = require('helmet');
+
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+// Middleware
+app.use(helmet());
+app.use(cors());
+app.use(express.json());
+
+// Health check endpoint
+app.get('/health', (req, res) => {
+  res.json({
+    status: 'healthy',
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV || 'development',
+    services: {
+      database: process.env.DATABASE_URL ? 'configured' : 'not configured',
+      cache: process.env.REDIS_URL ? 'configured' : 'not configured'
+    }
+  });
+});
+
+// API routes
+app.get('/api/info', (req, res) => {
+  res.json({
+    message: 'IaC Learning Template API',
+    version: '1.0.0',
+    environment: process.env.NODE_ENV,
+    features: [
+      'SOPS secret management',
+      'Docker Compose orchestration',
+      'Multi-tier architecture',
+      'Monitoring integration'
+    ]
+  });
+});
+
+app.get('/api/env', (req, res) => {
+  res.json({
+    environment: process.env.NODE_ENV,
+    hasDatabase: !!process.env.DATABASE_URL,
+    hasCache: !!process.env.REDIS_URL,
+    hasSecrets: !!process.env.APP_SECRET_KEY
+  });
+});
+
+// Start server
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`🚀 API server running on port ${PORT}`);
+  console.log(`📊 Health check: http://localhost:${PORT}/health`);
+});
+EOF
+        
+        # Generate database init script
+        cat > examples/database/init.sql << 'EOF'
+-- IaC Learning Template Database Initialization
+
+-- Create application schema
+CREATE SCHEMA IF NOT EXISTS app;
+
+-- Create users table
+CREATE TABLE IF NOT EXISTS app.users (
+    id SERIAL PRIMARY KEY,
+    username VARCHAR(50) UNIQUE NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Create application logs table
+CREATE TABLE IF NOT EXISTS app.logs (
+    id SERIAL PRIMARY KEY,
+    level VARCHAR(20) NOT NULL,
+    message TEXT NOT NULL,
+    metadata JSONB,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Insert sample data
+INSERT INTO app.users (username, email) VALUES 
+    ('demo_user', 'demo@example.com'),
+    ('admin', 'admin@example.com')
+ON CONFLICT (username) DO NOTHING;
+
+-- Insert sample log entries
+INSERT INTO app.logs (level, message, metadata) VALUES 
+    ('info', 'Database initialized successfully', '{"component": "database"}'),
+    ('info', 'Sample data inserted', '{"component": "init_script"}')
+ON CONFLICT DO NOTHING;
+
+-- Create index for performance
+CREATE INDEX IF NOT EXISTS idx_logs_created_at ON app.logs (created_at);
+CREATE INDEX IF NOT EXISTS idx_logs_level ON app.logs (level);
+
+EOF
+        
+        echo "✅ Generated example configuration files"
+
+  clean:
+    desc: "Clean up generated example files"
     cmds:
-      - |
-        echo "=== Monitoring Demo ==="
-        echo ""
-        
-        # Check if monitoring is available
-        if docker compose -f "{{.ROOT_DIR}}/examples/docker-compose.yml" ps --services --filter "status=running" | grep -q "prometheus"; then
-          echo "✅ Prometheus monitoring active"
-          echo "🌎 URL: http://localhost:9090"
-          echo ""
-          
-          # Show example metrics
-          echo "📈 Example metrics being collected:"
-          echo "  - Container CPU/Memory usage"
-          echo "  - Database connections"
-          echo "  - HTTP request rates"
-          echo "  - System health checks"
-          echo ""
-          
-          if docker compose -f "{{.ROOT_DIR}}/examples/docker-compose.yml" ps --services --filter "status=running" | grep -q "grafana"; then
-            echo "✅ Grafana dashboards available"
-            echo "🌎 URL: http://localhost:3000"
-            echo "👤 Login: admin/admin"
-          fi
-        else
-          echo "⚠️  Monitoring services not running"
-          echo "💡 Start with: task up"
-        fi
-        
-  # === Advanced Demos ===
-  demo:scaling:
-    desc: "📈 Demonstrate service scaling"
-    cmds:
-      - |
-        echo "=== Service Scaling Demo ==="
-        echo ""
-        
-        if docker compose -f "{{.ROOT_DIR}}/examples/docker-compose.yml" ps --services --filter "status=running" | grep -q "nginx"; then
-          echo "📈 Current nginx instances:"
-          docker compose -f "{{.ROOT_DIR}}/examples/docker-compose.yml" ps nginx
-          echo ""
-          
-          echo "🚀 Scaling nginx to 3 instances..."
-          docker compose -f "{{.ROOT_DIR}}/examples/docker-compose.yml" up -d --scale nginx=3
-          
-          echo "📈 New nginx instances:"
-          docker compose -f "{{.ROOT_DIR}}/examples/docker-compose.yml" ps nginx
-          
-          echo ""
-          echo "🔄 Scaling back to 1 instance..."
-          docker compose -f "{{.ROOT_DIR}}/examples/docker-compose.yml" up -d --scale nginx=1
-        else
-          echo "⚠️  Services not running. Start with: task up"
-        fi
-        
-  demo:backup:
-    desc: "💾 Demonstrate backup procedures"
-    cmds:
-      - |
-        echo "=== Backup Procedures Demo ==="
-        echo ""
-        
-        # Database backup simulation
-        if docker compose -f "{{.ROOT_DIR}}/examples/docker-compose.yml" ps --services --filter "status=running" | grep -q "postgres"; then
-          echo "💾 Creating database backup..."
-          
-          # Create backup directory
-          mkdir -p "{{.ROOT_DIR}}/examples/backups"
-          
-          # Simulate backup (in real scenario, this would be actual pg_dump)
-          echo "📁 Backup location: examples/backups/"
-          echo "📅 Backup timestamp: $(date)"
-          echo "📊 Backup size: simulated 150MB"
-          
-          # Create example backup metadata
-          cat > "{{.ROOT_DIR}}/examples/backups/backup-$(date +%Y%m%d).info" << EOF
-        Backup Information
-        ==================
-        Date: $(date)
-        Database: postgres
-        Size: 150MB (simulated)
-        Type: Full backup
-        Encryption: AES-256
-        Status: Completed
-        EOF
-          
-          echo "✅ Backup completed successfully"
-          echo "📝 Backup info saved to: examples/backups/backup-$(date +%Y%m%d).info"
-        else
-          echo "⚠️  Database not running. Start with: task up"
-        fi
-        
-  demo:security:
-    desc: "🔒 Demonstrate security features"
-    cmds:
-      - |
-        echo "=== Security Features Demo ==="
-        echo ""
-        
-        echo "🔐 Secrets Management:"
-        echo "  ✅ Age encryption for sensitive data"
-        echo "  ✅ SOPS integration for GitOps workflows"
-        echo "  ✅ No plaintext secrets in repository"
-        echo ""
-        
-        echo "🐳 Container Security:"
-        if docker compose -f "{{.ROOT_DIR}}/examples/docker-compose.yml" ps --services --filter "status=running" | head -1 | grep -q "."; then
-          echo "  ✅ Non-root user containers"
-          echo "  ✅ Read-only root filesystems"
-          echo "  ✅ Resource limits applied"
-          echo "  ✅ Network segmentation"
-          
-          # Show security details for a service
-          service_name=$(docker compose -f "{{.ROOT_DIR}}/examples/docker-compose.yml" ps --services --filter "status=running" | head -1)
-          if [[ -n "$service_name" ]]; then
-            echo ""
-            echo "🔍 Security details for $service_name:"
-            docker inspect "$(docker compose -f {{.ROOT_DIR}}/examples/docker-compose.yml ps -q $service_name | head -1)" --format '  User: {{.Config.User}}' 2>/dev/null || echo "  User: default"
-            echo "  ReadonlyRootfs: enabled"
-            echo "  ResourceLimits: configured"
-          fi
-        else
-          echo "  ⚠️  No running containers to inspect"
-        fi
-        
-        echo ""
-        echo "🌐 Network Security:"
-        echo "  ✅ Internal service communication"
-        echo "  ✅ Port exposure only where needed"
-        echo "  ✅ Environment isolation"
+      - rm -rf examples/
+      - echo "🧹 Cleaned up generated example files"

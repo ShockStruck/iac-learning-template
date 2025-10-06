@@ -1,0 +1,122 @@
+---
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+version: '3'
+
+tasks:
+  install:
+    desc: "Install CLI tools required for IaC learning on macOS"
+    cmds:
+      - |
+        echo "🍺 Installing CLI tools for Infrastructure as Code learning..."
+        echo
+        
+        # Check if Homebrew is installed
+        if ! command -v brew >/dev/null 2>&1; then
+          echo "❌ Homebrew not found. Installing Homebrew first..."
+          /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+        else
+          echo "✅ Homebrew found"
+        fi
+        
+        # Core IaC tools
+        echo "📦 Installing core IaC tools..."
+        brew install --quiet task/tap/go-task    # Task runner
+        brew install --quiet age                  # Encryption for SOPS
+        brew install --quiet sops                 # Secret management
+        brew install --quiet direnv              # Environment management
+        brew install --quiet docker              # Container runtime
+        brew install --quiet docker-compose      # Multi-container orchestration
+        
+        # Development tools
+        echo "🛠️  Installing development tools..."
+        brew install --quiet git                  # Version control
+        brew install --quiet jq                   # JSON processor
+        brew install --quiet yq                   # YAML processor
+        brew install --quiet tree                 # Directory visualization
+        
+        # Optional but useful tools
+        echo "🚀 Installing optional tools..."
+        brew install --quiet htop                 # Process monitor
+        brew install --quiet curl                 # HTTP client
+        brew install --quiet wget                 # File downloader
+        
+        echo
+        echo "✅ All CLI tools installed successfully!"
+        echo
+        echo "📋 Installed tools:"
+        echo "   • task      - Task runner for automation"
+        echo "   • age       - Modern encryption tool"
+        echo "   • sops      - Secret management"
+        echo "   • direnv    - Environment variable management"
+        echo "   • docker    - Container runtime"
+        echo "   • docker-compose - Multi-container orchestration"
+        echo "   • git       - Version control"
+        echo "   • jq/yq     - JSON/YAML processors"
+        echo "   • tree      - Directory visualization"
+        echo
+        echo "🔄 Next steps:"
+        echo "   1. Restart your terminal or run: source ~/.zshrc"
+        echo "   2. Start Docker Desktop application"
+        echo "   3. Run: task bootstrap"
+
+  check:
+    desc: "Check if all required CLI tools are installed"
+    cmds:
+      - |
+        echo "🔍 Checking required CLI tools..."
+        echo
+        
+        tools=(
+          "task:Task runner"
+          "age:Age encryption"
+          "sops:SOPS secret management"
+          "direnv:Direnv environment management"
+          "docker:Docker container runtime"
+          "docker-compose:Docker Compose"
+          "git:Git version control"
+          "jq:JQ JSON processor"
+          "yq:YQ YAML processor"
+        )
+        
+        missing_tools=()
+        
+        for tool_desc in "${tools[@]}"; do
+          tool=${tool_desc%%:*}
+          desc=${tool_desc#*:}
+          
+          if command -v "$tool" >/dev/null 2>&1; then
+            version=$("$tool" --version 2>&1 | head -1 || echo "(version unknown)")
+            echo "✅ $desc: $version"
+          else
+            echo "❌ $desc: not found"
+            missing_tools+=("$tool")
+          fi
+        done
+        
+        echo
+        
+        if [ ${#missing_tools[@]} -eq 0 ]; then
+          echo "🎉 All required tools are installed!"
+          echo "🚀 Ready to start IaC learning. Run: task bootstrap"
+        else
+          echo "⚠️  Missing tools: ${missing_tools[*]}"
+          echo "📦 Install missing tools with: task brew:install"
+          exit 1
+        fi
+
+  upgrade:
+    desc: "Upgrade all installed CLI tools"
+    cmds:
+      - |
+        echo "⬆️  Upgrading CLI tools..."
+        brew update
+        brew upgrade
+        echo "✅ All tools upgraded successfully!"
+
+  doctor:
+    desc: "Run Homebrew doctor to check for issues"
+    cmds:
+      - |
+        echo "👩‍⚕️ Running Homebrew doctor..."
+        brew doctor
+        echo "✅ Homebrew health check complete!"

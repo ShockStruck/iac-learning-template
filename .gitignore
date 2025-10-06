@@ -1,105 +1,95 @@
-# IaC Learning Template - Git Ignore
-# Security-focused ignore patterns for Infrastructure as Code
+# IaC Learning Template - .gitignore
 
-# === Secrets and Sensitive Data ===
-# CRITICAL: Never commit these files
-.secrets/
-age.key
+# === SECURITY ===
+# Never commit unencrypted secrets
 *.key
 *.pem
 *.p12
 *.pfx
-*.crt
-*.cer
+.secrets/
 
-# Decrypted secret files (plaintext)
-secrets/*.env
-!secrets/*.sops.env
-secrets/*.yaml
-!secrets/*.sops.yaml
-secrets/*.yml
-!secrets/*.sops.yml
-secrets/*.json
-!secrets/*.sops.json
+# Age keys (SOPS encryption)
+# Note: Only .secrets/age.key should exist, but be extra safe
+age.key
+key.txt
 
-# Environment files with credentials
+# Environment files (unless .sops.env which should be encrypted)
 .env
 .env.local
-.env.*.local
-.envrc.local
+.env.development
+.env.test
+.env.production
 
-# === Task and Build Artifacts ===
-.task/
-.taskfiles/.task/
+# === DOCKER ===
+# Docker Compose override files
+docker-compose.override.yml
+docker-compose.local.yml
 
-# === Docker and Compose ===
-.docker/
-.compose-env
-
-# Container build context
-**/context/
-
-# Docker volumes (if mounted locally)
+# Docker volumes and logs
 volumes/
+logs/
+*.log
 
-# === Operating System Files ===
+# === DEVELOPMENT ===
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
 # macOS
 .DS_Store
 .AppleDouble
 .LSOverride
-Icon?
-._*
-.Spotlight-V100
-.Trashes
-
-# Linux
-*~
-.fuse_hidden*
-.directory
-.Trash-*
 
 # Windows
 Thumbs.db
 ehthumbs.db
 Desktop.ini
-$RECYCLE.BIN/
-*.lnk
 
-# === IDE and Editor Files ===
-# VSCode
-.vscode/
-!.vscode/settings.json
-!.vscode/tasks.json
-!.vscode/launch.json
-!.vscode/extensions.json
-*.code-workspace
-
-# JetBrains IDEs
-.idea/
-*.iml
-*.iws
-*.ipr
-
-# Sublime Text
-*.sublime-project
-*.sublime-workspace
-
-# Vim
-[._]*.s[a-v][a-z]
-[._]*.sw[a-p]
-[._]s[a-rt-v][a-z]
-[._]ss[a-gi-z]
-[._]sw[a-p]
-*.swp
-*.swo
-
-# Emacs
+# Linux
 *~
-\#*\#
-.\#*
 
-# === Language-Specific ===
-# Python
+# === TASK AND BUILD ===
+# Task runner temporary files
+.task/
+dist/
+build/
+out/
+
+# === TERRAFORM (if used) ===
+# Terraform state files
+*.tfstate
+*.tfstate.*
+*.tfvars
+.terraform/
+.terraform.lock.hcl
+crash.log
+crash.*.log
+
+# === ANSIBLE (if used) ===
+# Ansible vault files
+vault.yml
+*.vault
+
+# Ansible retry files
+*.retry
+
+# === KUBERNETES (if used) ===
+# Kubeconfig files
+kubeconfig
+*.kubeconfig
+
+# === NODE.JS (if using Node tools) ===
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+yarn.lock
+
+# === PYTHON (if using Python tools) ===
 __pycache__/
 *.py[cod]
 *$py.class
@@ -117,110 +107,41 @@ parts/
 sdist/
 var/
 wheels/
-pip-wheel-metadata/
-share/python-wheels/
 *.egg-info/
 .installed.cfg
 *.egg
-PIPFILE.lock
 
-# Virtual environments
-venv/
-ENV/
-env/
-.venv
+# === BACKUP AND TEMPORARY ===
+# Backup files
+*.bak
+*.backup
+*.old
+*.orig
+*.tmp
 
-# Node.js
-node_modules/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-lerna-debug.log*
-package-lock.json
-yarn.lock
+# Temporary directories
+tmp/
+temp/
 
-# === Terraform (if used) ===
-.terraform/
-.terraform.lock.hcl
-*.tfstate
-*.tfstate.*
-*.tfvars
-!example.tfvars
-*.auto.tfvars
-crash.log
-override.tf
-override.tf.json
-*_override.tf
-*_override.tf.json
-.terraformrc
-terraform.rc
-
-# === Ansible (if used) ===
-*.retry
-.vault_pass
-
-# === Kubernetes (if used) ===
-# Kustomize patches
-kustomization.yaml.bak
-
-# Helm
-*.tgz
-.helm/
-charts/*/charts
-
-# === Logs and Temporary Files ===
+# === MONITORING AND LOGS ===
+# Application logs
 logs/
 *.log
-*.log.*
 
-# Temporary files
-*.tmp
-*.temp
-*.bak
-*.swp
-*.swo
-*~
-.cache/
+# Monitoring data
+monitoring/data/
+grafana/data/
+prometheus/data/
 
-# === Backup Files ===
-examples/backups/*.sql
-examples/backups/*.dump
-examples/backups/*.tar.gz
-!examples/backups/.gitkeep
-!examples/backups/*.info
+# === PROJECT SPECIFIC ===
+# Learning artifacts that shouldn't be committed
+learning-notes/
+scratch/
+experiments/
 
-# === Testing and Coverage ===
-.coverage
-.pytest_cache/
-htmlcov/
-.tox/
-.nox/
+# Generated documentation
+docs/generated/
 
-# === Documentation Build ===
-site/
-.mkdocs/
-
-# === Generated Files ===
-# README auto-generation
-.readme-cache/
-
-# Task-generated files
-.auto-generated/
-
-# === Keep These Patterns ===
-# Keep .gitkeep files
-!**/.gitkeep
-
-# Keep example configs
-!examples/nginx.conf
-!examples/prometheus.yml
-!examples/init/*.sql
-
-# Keep documentation
-!docs/**/*.md
-!README.md
-!CONTRIBUTING.md
-!LICENSE
-
-# Keep SOPS encrypted files (they're safe to commit)
-!secrets/*.sops.*
+# Test artifacts
+test-results/
+coverage/

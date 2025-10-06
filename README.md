@@ -1,378 +1,178 @@
-# 🚀 Infrastructure as Code Learning Template
+# 🏗️ Infrastructure as Code Learning Template
 
-> A comprehensive, hands-on template for learning Infrastructure as Code concepts with Docker Compose, SOPS secrets management, and Task automation.
+[![Task](https://img.shields.io/badge/Task-Enabled-brightgreen?logo=task)](https://taskfile.dev)
+[![SOPS](https://img.shields.io/badge/SOPS-Encrypted-blue?logo=mozilla)](https://github.com/mozilla/sops)
+[![Docker](https://img.shields.io/badge/Docker-Compose-blue?logo=docker)](https://docs.docker.com/compose/)
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Task](https://img.shields.io/badge/Task-Taskfile-blue)](https://taskfile.dev)
-[![SOPS](https://img.shields.io/badge/SOPS-Encrypted-green)](https://github.com/mozilla/sops)
-[![Docker](https://img.shields.io/badge/Docker-Compose-blue)](https://docs.docker.com/compose/)
+A comprehensive learning template for Infrastructure as Code (IaC) concepts using Docker Compose, SOPS secret management, and Task automation. Perfect for learning modern infrastructure patterns and best practices.
 
-## 🎯 Overview
+## 🎆 Features
 
-This template provides a **production-ready** Infrastructure as Code learning environment that demonstrates:
+- **🔐 Secret Management**: SOPS encryption with Age keys
+- **🚀 Task Automation**: Comprehensive task runner configuration
+- **🐳 Multi-Service Stack**: Web, API, Database, Cache, Monitoring
+- **📊 Monitoring**: Prometheus metrics + Grafana dashboards
+- **🌐 Load Balancing**: Traefik reverse proxy (advanced profile)
+- **📦 Package Management**: Homebrew automation for macOS
+- **📁 Volume Persistence**: Data persistence across container restarts
+- **🔗 Service Discovery**: Internal networking and communication
 
-- **🔐 Secrets Management**: SOPS with Age encryption for secure credential handling
-- **🐳 Service Orchestration**: Docker Compose with multi-service architecture
-- **⚙️ Task Automation**: Comprehensive workflow automation using Taskfile
-- **📈 Monitoring**: Prometheus and Grafana for observability
-- **✅ Quality Assurance**: Pre-commit hooks for code quality and security
-- **📚 Educational Approach**: Step-by-step learning path with hands-on examples
-
-## ⚡ Quick Start
-
-```bash
-# Clone the repository
-git clone https://github.com/ShockStruck/iac-learning-template.git
-cd iac-learning-template
-
-# Install dependencies (see Installation section below)
-brew bundle  # macOS or Linux with Homebrew
-
-# Bootstrap everything (install dependencies, setup environment)
-task start
-
-# Begin learning journey
-task basics
-```
-
-That's it! Your infrastructure is running and you're ready to learn.
-
-## 📚 Learning Path
-
-This template provides a structured 4-module learning path:
-
-### Module 1: IaC Basics 📖
-```bash
-task basics
-```
-- Understand Infrastructure as Code fundamentals
-- Learn Task automation patterns
-- Explore repository structure and organization
-
-### Module 2: Secrets Management 🔐
-```bash
-task secrets
-```
-- Master SOPS encryption with Age keys
-- Implement secure secrets handling
-- Practice GitOps-compatible secret workflows
-
-### Module 3: Docker Compose 🐳
-```bash
-task compose
-```
-- Build multi-service architectures
-- Configure service dependencies and networking
-- Integrate encrypted secrets with containers
-
-### Module 4: Automation Patterns ⚙️
-```bash
-task automation
-```
-- Advanced Task automation techniques
-- CI/CD integration patterns
-- Production deployment strategies
-
-## 🏠 Architecture
-
-```
-iac-learning-template/
-├── Taskfile.yml           # Main task automation
-├── Brewfile               # Homebrew dependencies
-├── .sops.yaml             # SOPS encryption config
-├── .taskfiles/            # Modular task definitions
-│   ├── compose/           # Docker Compose operations
-│   ├── sops/              # Secrets management
-│   ├── bootstrap/         # Dependency installation
-│   ├── validate/          # Health checks
-│   ├── examples/          # Demo workflows
-│   └── readme/            # Documentation generation
-├── examples/              # Docker Compose examples
-│   ├── docker-compose.yml # Multi-service definition
-│   ├── nginx.conf         # Web server config
-│   ├── prometheus.yml     # Monitoring config
-│   ├── init/              # Database initialization
-│   └── html/              # Static web content
-├── secrets/               # Encrypted secrets (SOPS)
-│   └── app.sops.env       # Application secrets
-├── .secrets/              # Local secrets (gitignored)
-│   └── age.key            # Encryption key
-├── docs/                  # Educational documentation
-└── scripts/               # Utility scripts
-```
-
-## 🔧 Installation
+## 🚀 Quick Start
 
 ### Prerequisites
 
-**Ubuntu/Linux:**
-- **Docker** ([install guide](https://docs.docker.com/engine/install/ubuntu/))
-- **Homebrew** (optional, for tool management) ([install here](https://brew.sh/))
+- **macOS**: Run `task brew:install` (installs all required tools)
+- **Other platforms**: Install manually:
+  - [Docker](https://docs.docker.com/get-docker/)
+  - [Docker Compose](https://docs.docker.com/compose/install/)
+  - [Task](https://taskfile.dev/installation/)
+  - [SOPS](https://github.com/mozilla/sops)
+  - [Age](https://github.com/FiloSottile/age)
+  - [direnv](https://direnv.net/docs/installation.html)
 
-**macOS:**
-- **Homebrew** ([install here](https://brew.sh/))
-- **Docker Desktop** (installed via Brewfile)
-
-### Linux Docker Installation (Ubuntu)
+### Installation
 
 ```bash
-# Install Docker Engine
-sudo apt-get update
-sudo apt-get install -y docker.io docker-compose-v2
+# 1. Clone the repository
+git clone https://github.com/ShockStruck/iac-learning-template.git
+cd iac-learning-template
 
-# Add your user to docker group (logout/login required)
-sudo usermod -aG docker $USER
+# 2. Bootstrap the environment (macOS)
+task bootstrap
 
-# Start and enable Docker
-sudo systemctl start docker
-sudo systemctl enable docker
+# 3. Edit secrets (will create and encrypt)
+task sops:edit -- secrets/secret.sops.env
+
+# 4. Start the basic stack
+task examples:basic
+
+# 5. Open in browser
+open http://localhost:8080
 ```
 
-### Automated Setup
+## 📊 Service Stack
 
-The bootstrap process installs all required tools:
+| Service | Port | Description | Health Check |
+|---------|------|-------------|-------------|
+| **Web** | 8080 | Nginx static content | ✅ HTTP |
+| **API** | 3000 | Node.js REST API | ✅ HTTP |
+| **Database** | 5432 | PostgreSQL 15 | ✅ pg_isready |
+| **Cache** | 6379 | Redis 7 | ✅ ping |
+| **Prometheus** | 9090 | Metrics collection | ✅ HTTP |
+| **Grafana** | 3001 | Dashboards | ✅ HTTP |
+| **Traefik** | 80/8081 | Load balancer (advanced) | ✅ HTTP |
 
-```bash
-# Option 1: Install via Homebrew Bundle (recommended)
-brew bundle
+## 🔐 Secret Management
 
-# Option 2: Full bootstrap (includes dependency installation)
-task bootstrap:all
-```
+This template uses **SOPS** (Secrets OPerationS) with **Age** encryption for secure secret management.
 
-This installs:
-- ✅ Git, direnv, age, sops, Task, pre-commit
-- ✅ Docker Engine and Docker Compose (Linux: via apt, macOS: via Homebrew)
-- ✅ Python dependencies for automation
-- ✅ Project directory structure
-- ✅ SOPS encryption keys and configuration
-
-### Manual Setup
-
-If you prefer manual installation:
+### Key Commands
 
 ```bash
-# Install Homebrew tools
-brew install git direnv age sops go-task/tap/go-task pre-commit
-
-# Setup direnv
-echo 'eval "$(direnv hook bash)"' >> ~/.bashrc  # or ~/.zshrc
-source ~/.bashrc
-
 # Generate Age encryption key
-mkdir -p .secrets
-age-keygen -o .secrets/age.key
+task sops:keygen
 
-# Create SOPS configuration
-echo "creation_rules:\n  - age: $(age-keygen -y .secrets/age.key)" > .sops.yaml
+# Edit encrypted secrets file
+task sops:edit -- secrets/secret.sops.env
 
-# Initialize secrets
-task sops:init
+# View decrypted secrets (for debugging)
+task sops:decrypt -- secrets/secret.sops.env
 
-# Allow direnv
-direnv allow
+# Check SOPS health
+task sops:health
+
+# Encrypt any unencrypted .sops.* files
+task sops:encrypt
 ```
 
-## 🚀 Usage
+### Secret Integration
 
-### Starting Services
-
-```bash
-# Start all services with encrypted secrets
-task up
-
-# Check service status
-task status
-
-# View service logs
-task logs -- nginx
-task logs -- postgres
-```
-
-### Secrets Management
-
-```bash
-# View encrypted secrets (decrypted)
-task sops:view
-
-# Edit secrets securely
-task sops:edit
-
-# Check encryption status
-task sops:status
-
-# View SOPS tutorial
-task sops:tutorial
-```
-
-### Service Management
-
-```bash
-# Stop all services
-task down
-
-# Restart specific service
-task compose:restart -- nginx
-
-# Get shell in container
-task compose:shell -- postgres
-
-# Pull latest images
-task compose:pull
-```
-
-### Development Commands
-
-```bash
-# Setup development environment
-task dev:setup
-
-# Run all validation checks
-task check
-
-# View all available commands
-task --list
-
-# Get help
-task help
-```
-
-## 🌐 Service Endpoints
-
-Once running, access these services:
-
-| Service | URL | Credentials |
-| --------- | ----- | ------------- |
-| **Nginx** | http://localhost:8080 | N/A |
-| **Grafana** | http://localhost:3000 | admin / admin |
-| **Prometheus** | http://localhost:9090 | N/A |
-| **PostgreSQL** | localhost:5432 | See secrets/app.sops.env |
-| **Redis** | localhost:6379 | See secrets/app.sops.env |
-
-## 🔒 Security Features
-
-### Secrets Management
-- **Age Encryption**: Military-grade encryption for all sensitive data
-- **SOPS Integration**: GitOps-compatible encrypted secrets
-- **No Plaintext**: Never commit unencrypted credentials
-- **Key Rotation**: Easy key rotation support
-
-### Container Security
-- **Non-root Users**: All containers run as unprivileged users
-- **Read-only Filesystems**: Immutable container runtime
-- **Resource Limits**: CPU and memory constraints
-- **Network Isolation**: Segmented networks for services
-
-### Code Quality
-- **Pre-commit Hooks**: Automated quality checks
-- **Secrets Detection**: Prevent accidental credential commits
-- **YAML Linting**: Syntax validation
-- **Shell Script Checking**: Shellcheck integration
-
-## 📈 Monitoring
-
-### Prometheus Metrics
-
-Access Prometheus at http://localhost:9090 to query:
-
-- Container resource usage
-- Service health checks
-- Application metrics
-- System performance
-
-### Grafana Dashboards
-
-Access Grafana at http://localhost:3000 (admin/admin) for:
-
-- Pre-configured dashboards
-- Custom metric visualization
-- Alert management
-- Data exploration
-
-## 🐛 Troubleshooting
-
-### Services Won't Start
-
-```bash
-# Check Docker daemon
-docker info
-
-# Validate Docker Compose file
-task validate:docker
-
-# Check secrets decryption
-task validate:sops
-```
-
-### Permission Issues
-
-```bash
-# Fix Age key permissions
-chmod 600 .secrets/age.key
-
-# Add user to docker group (Linux)
-sudo usermod -aG docker $USER
-# Log out and back in for group change to take effect
-```
-
-### SOPS Decryption Fails
-
-```bash
-# Verify Age key
-age-keygen -y .secrets/age.key
-
-# Check SOPS config
-cat .sops.yaml
-
-# Test decryption
-task sops:view
-```
-
-### Port Conflicts
-
-If ports are already in use, modify `examples/docker-compose.yml`:
+Secrets are automatically decrypted and injected into Docker Compose:
 
 ```yaml
-services:
-  nginx:
-    ports:
-      - "8080:80"  # Change 8080 to another port
+# docker-compose.yml
+environment:
+  - POSTGRES_PASSWORD=${DATABASE_PASSWORD}  # From SOPS
+  - APP_SECRET_KEY=${APP_SECRET_KEY}        # From SOPS
 ```
 
-## 📚 Documentation
+## 🚀 Learning Examples
 
-- [Module 1: IaC Basics](docs/01-iac-basics.md)
-- [Module 2: Secrets Management](docs/02-secrets-management.md)
-- [Module 3: Docker Compose](docs/03-docker-compose.md)
-- [Module 4: Automation Patterns](docs/04-automation-patterns.md)
+### Basic Examples
 
-## 🤝 Contributing
+```bash
+# Start simple web + database stack
+task examples:basic
 
-Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+# Explore secret management
+task examples:secrets
 
-## 📑 License
+# Add monitoring (Prometheus + Grafana)
+task examples:monitoring
+```
 
-MIT License - see [LICENSE](LICENSE) for details.
+### Intermediate Examples
 
-## 👤 Author
+```bash
+# Learn Docker networking
+task examples:networking
 
-Created as an educational template for learning Infrastructure as Code concepts.
+# Explore data persistence
+task examples:persistence
 
-## 💬 Support
+# Practice horizontal scaling
+task examples:scaling
+```
 
-For questions or issues:
+### Advanced Examples
 
-1. Check the [documentation](docs/)
-2. Review [troubleshooting](#-troubleshooting)
-3. Open an [issue](https://github.com/ShockStruck/iac-learning-template/issues)
+```bash
+# Full stack with load balancer
+task examples:advanced
 
-## ⭐ Acknowledgments
+# Backup and recovery strategies
+task examples:backup
 
-- [Mozilla SOPS](https://github.com/mozilla/sops) for secrets management
-- [Taskfile](https://taskfile.dev) for task automation
-- [Age](https://age-encryption.org/) for encryption
-- Infrastructure as Code community
+# Security hardening patterns
+task examples:security
+```
+
+## 🚀 Task Automation
+
+This project uses [Task](https://taskfile.dev) for automation. View all available tasks:
+
+```bash
+# List all tasks
+task --list
+
+# Core operations
+task bootstrap          # Full setup
+task health            # System health check
+task clean             # Clean up resources
+
+# Docker Compose operations
+task compose:up        # Start stack
+task compose:down      # Stop stack
+task compose:ps        # List services
+task compose:logs      # View logs
+task compose:restart   # Restart service
+
+# Secret management
+task sops:keygen       # Generate Age key
+task sops:edit         # Edit secrets
+task sops:health       # Check SOPS status
+
+# Learning examples
+task examples:list     # List all examples
+task examples:basic    # Basic stack
+task examples:advanced # Advanced features
+
+# macOS tool installation
+task brew:install      # Install CLI tools
+task brew:check        # Check tool status
+```
 
 ---
 
-**Happy Learning! 🎓** Start your IaC journey with `task start`
+**🎉 Happy learning!** This template provides a solid foundation for understanding Infrastructure as Code concepts. Start with the basic examples and gradually work your way up to advanced patterns.
