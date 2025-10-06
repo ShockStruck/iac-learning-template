@@ -261,184 +261,184 @@ tasks:
       - mkdir -p examples/{web,app,database,redis,nginx,monitoring/{grafana/provisioning,prometheus},traefik/{dynamic}}
       - |
         # Generate web content
-        cat > examples/web/index.html << 'EOF'
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IaC Learning Template</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 40px; background: #f5f5f5; }
-        .container { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        h1 { color: #333; border-bottom: 3px solid #007acc; padding-bottom: 10px; }
-        .service { background: #f8f9fa; padding: 15px; margin: 10px 0; border-radius: 5px; }
-        .status { color: #28a745; font-weight: bold; }
-        a { color: #007acc; text-decoration: none; }
-        a:hover { text-decoration: underline; }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1>🏗️ Infrastructure as Code Learning Template</h1>
-        <p>Welcome to your IaC learning environment! This stack demonstrates modern infrastructure patterns.</p>
-        
-        <div class="service">
-            <h3>🌐 Web Application</h3>
-            <p class="status">✅ Running</p>
-            <p>Static web content served by Nginx</p>
-        </div>
-        
-        <div class="service">
-            <h3>🚀 Node.js API</h3>
-            <p><a href="http://localhost:3000">http://localhost:3000</a></p>
-            <p>RESTful API with database connectivity</p>
-        </div>
-        
-        <div class="service">
-            <h3>📋 Monitoring</h3>
-            <p><a href="http://localhost:9090">Prometheus</a> | <a href="http://localhost:3001">Grafana</a></p>
-            <p>Metrics collection and visualization</p>
-        </div>
-        
-        <div class="service">
-            <h3>🔐 Secret Management</h3>
-            <p>SOPS encryption with Age keys</p>
-            <p>Environment variables injected securely</p>
-        </div>
-        
-        <h2>🚀 Learning Resources</h2>
-        <ul>
-            <li><strong>Task automation:</strong> <code>task --list</code></li>
-            <li><strong>Docker commands:</strong> <code>docker-compose ps</code></li>
-            <li><strong>Logs:</strong> <code>task compose:logs</code></li>
-            <li><strong>Examples:</strong> <code>task examples:list</code></li>
-        </ul>
-    </div>
-</body>
-</html>
-EOF
+        cat > examples/web/index.html <<- 'EOF'
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>IaC Learning Template</title>
+            <style>
+                body { font-family: Arial, sans-serif; margin: 40px; background: #f5f5f5; }
+                .container { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+                h1 { color: #333; border-bottom: 3px solid #007acc; padding-bottom: 10px; }
+                .service { background: #f8f9fa; padding: 15px; margin: 10px 0; border-radius: 5px; }
+                .status { color: #28a745; font-weight: bold; }
+                a { color: #007acc; text-decoration: none; }
+                a:hover { text-decoration: underline; }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <h1>🏗️ Infrastructure as Code Learning Template</h1>
+                <p>Welcome to your IaC learning environment! This stack demonstrates modern infrastructure patterns.</p>
+                
+                <div class="service">
+                    <h3>🌐 Web Application</h3>
+                    <p class="status">✅ Running</p>
+                    <p>Static web content served by Nginx</p>
+                </div>
+                
+                <div class="service">
+                    <h3>🚀 Node.js API</h3>
+                    <p><a href="http://localhost:3000">http://localhost:3000</a></p>
+                    <p>RESTful API with database connectivity</p>
+                </div>
+                
+                <div class="service">
+                    <h3>📋 Monitoring</h3>
+                    <p><a href="http://localhost:9090">Prometheus</a> | <a href="http://localhost:3001">Grafana</a></p>
+                    <p>Metrics collection and visualization</p>
+                </div>
+                
+                <div class="service">
+                    <h3>🔐 Secret Management</h3>
+                    <p>SOPS encryption with Age keys</p>
+                    <p>Environment variables injected securely</p>
+                </div>
+                
+                <h2>🚀 Learning Resources</h2>
+                <ul>
+                    <li><strong>Task automation:</strong> <code>task --list</code></li>
+                    <li><strong>Docker commands:</strong> <code>docker-compose ps</code></li>
+                    <li><strong>Logs:</strong> <code>task compose:logs</code></li>
+                    <li><strong>Examples:</strong> <code>task examples:list</code></li>
+                </ul>
+            </div>
+        </body>
+        </html>
+        EOF
         
         # Generate Node.js app
-        cat > examples/app/package.json << 'EOF'
-{
-  "name": "iac-learning-app",
-  "version": "1.0.0",
-  "description": "IaC Learning Template API",
-  "main": "server.js",
-  "scripts": {
-    "start": "node server.js",
-    "dev": "nodemon server.js"
-  },
-  "dependencies": {
-    "express": "^4.18.2",
-    "pg": "^8.8.0",
-    "redis": "^4.5.1",
-    "cors": "^2.8.5",
-    "helmet": "^6.0.1"
-  }
-}
-EOF
+        cat > examples/app/package.json <<- 'EOF'
+        {
+          "name": "iac-learning-app",
+          "version": "1.0.0",
+          "description": "IaC Learning Template API",
+          "main": "server.js",
+          "scripts": {
+            "start": "node server.js",
+            "dev": "nodemon server.js"
+          },
+          "dependencies": {
+            "express": "^4.18.2",
+            "pg": "^8.8.0",
+            "redis": "^4.5.1",
+            "cors": "^2.8.5",
+            "helmet": "^6.0.1"
+          }
+        }
+        EOF
         
-        cat > examples/app/server.js << 'EOF'
-const express = require('express');
-const cors = require('cors');
-const helmet = require('helmet');
-
-const app = express();
-const PORT = process.env.PORT || 3000;
-
-// Middleware
-app.use(helmet());
-app.use(cors());
-app.use(express.json());
-
-// Health check endpoint
-app.get('/health', (req, res) => {
-  res.json({
-    status: 'healthy',
-    timestamp: new Date().toISOString(),
-    environment: process.env.NODE_ENV || 'development',
-    services: {
-      database: process.env.DATABASE_URL ? 'configured' : 'not configured',
-      cache: process.env.REDIS_URL ? 'configured' : 'not configured'
-    }
-  });
-});
-
-// API routes
-app.get('/api/info', (req, res) => {
-  res.json({
-    message: 'IaC Learning Template API',
-    version: '1.0.0',
-    environment: process.env.NODE_ENV,
-    features: [
-      'SOPS secret management',
-      'Docker Compose orchestration',
-      'Multi-tier architecture',
-      'Monitoring integration'
-    ]
-  });
-});
-
-app.get('/api/env', (req, res) => {
-  res.json({
-    environment: process.env.NODE_ENV,
-    hasDatabase: !!process.env.DATABASE_URL,
-    hasCache: !!process.env.REDIS_URL,
-    hasSecrets: !!process.env.APP_SECRET_KEY
-  });
-});
-
-// Start server
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`🚀 API server running on port ${PORT}`);
-  console.log(`📊 Health check: http://localhost:${PORT}/health`);
-});
-EOF
+        cat > examples/app/server.js <<- 'EOF'
+        const express = require('express');
+        const cors = require('cors');
+        const helmet = require('helmet');
+        
+        const app = express();
+        const PORT = process.env.PORT || 3000;
+        
+        // Middleware
+        app.use(helmet());
+        app.use(cors());
+        app.use(express.json());
+        
+        // Health check endpoint
+        app.get('/health', (req, res) => {
+          res.json({
+            status: 'healthy',
+            timestamp: new Date().toISOString(),
+            environment: process.env.NODE_ENV || 'development',
+            services: {
+              database: process.env.DATABASE_URL ? 'configured' : 'not configured',
+              cache: process.env.REDIS_URL ? 'configured' : 'not configured'
+            }
+          });
+        });
+        
+        // API routes
+        app.get('/api/info', (req, res) => {
+          res.json({
+            message: 'IaC Learning Template API',
+            version: '1.0.0',
+            environment: process.env.NODE_ENV,
+            features: [
+              'SOPS secret management',
+              'Docker Compose orchestration',
+              'Multi-tier architecture',
+              'Monitoring integration'
+            ]
+          });
+        });
+        
+        app.get('/api/env', (req, res) => {
+          res.json({
+            environment: process.env.NODE_ENV,
+            hasDatabase: !!process.env.DATABASE_URL,
+            hasCache: !!process.env.REDIS_URL,
+            hasSecrets: !!process.env.APP_SECRET_KEY
+          });
+        });
+        
+        // Start server
+        app.listen(PORT, '0.0.0.0', () => {
+          console.log(`🚀 API server running on port ${PORT}`);
+          console.log(`📊 Health check: http://localhost:${PORT}/health`);
+        });
+        EOF
         
         # Generate database init script
-        cat > examples/database/init.sql << 'EOF'
--- IaC Learning Template Database Initialization
-
--- Create application schema
-CREATE SCHEMA IF NOT EXISTS app;
-
--- Create users table
-CREATE TABLE IF NOT EXISTS app.users (
-    id SERIAL PRIMARY KEY,
-    username VARCHAR(50) UNIQUE NOT NULL,
-    email VARCHAR(100) UNIQUE NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
--- Create application logs table
-CREATE TABLE IF NOT EXISTS app.logs (
-    id SERIAL PRIMARY KEY,
-    level VARCHAR(20) NOT NULL,
-    message TEXT NOT NULL,
-    metadata JSONB,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
--- Insert sample data
-INSERT INTO app.users (username, email) VALUES 
-    ('demo_user', 'demo@example.com'),
-    ('admin', 'admin@example.com')
-ON CONFLICT (username) DO NOTHING;
-
--- Insert sample log entries
-INSERT INTO app.logs (level, message, metadata) VALUES 
-    ('info', 'Database initialized successfully', '{"component": "database"}'),
-    ('info', 'Sample data inserted', '{"component": "init_script"}')
-ON CONFLICT DO NOTHING;
-
--- Create index for performance
-CREATE INDEX IF NOT EXISTS idx_logs_created_at ON app.logs (created_at);
-CREATE INDEX IF NOT EXISTS idx_logs_level ON app.logs (level);
-
-EOF
+        cat > examples/database/init.sql <<- 'EOF'
+        -- IaC Learning Template Database Initialization
+        
+        -- Create application schema
+        CREATE SCHEMA IF NOT EXISTS app;
+        
+        -- Create users table
+        CREATE TABLE IF NOT EXISTS app.users (
+            id SERIAL PRIMARY KEY,
+            username VARCHAR(50) UNIQUE NOT NULL,
+            email VARCHAR(100) UNIQUE NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+        
+        -- Create application logs table
+        CREATE TABLE IF NOT EXISTS app.logs (
+            id SERIAL PRIMARY KEY,
+            level VARCHAR(20) NOT NULL,
+            message TEXT NOT NULL,
+            metadata JSONB,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+        
+        -- Insert sample data
+        INSERT INTO app.users (username, email) VALUES 
+            ('demo_user', 'demo@example.com'),
+            ('admin', 'admin@example.com')
+        ON CONFLICT (username) DO NOTHING;
+        
+        -- Insert sample log entries
+        INSERT INTO app.logs (level, message, metadata) VALUES 
+            ('info', 'Database initialized successfully', '{"component": "database"}'),
+            ('info', 'Sample data inserted', '{"component": "init_script"}')
+        ON CONFLICT DO NOTHING;
+        
+        -- Create index for performance
+        CREATE INDEX IF NOT EXISTS idx_logs_created_at ON app.logs (created_at);
+        CREATE INDEX IF NOT EXISTS idx_logs_level ON app.logs (level);
+        
+        EOF
         
         echo "✅ Generated example configuration files"
 
