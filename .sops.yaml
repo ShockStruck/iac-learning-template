@@ -1,14 +1,9 @@
-# SOPS configuration for IaC Learning Template
-# This file defines encryption rules for different file types
+# SOPS Configuration
+# Replace YOUR_AGE_PUBLIC_KEY_HERE with output from: age-keygen -y .secrets/age.key
 
 creation_rules:
-  # Encrypt all .sops.* files using Age
-  - path_regex: \.sops\.(yaml|yml|json|env)$
-    age: age1hl4rr4czahaj7qma2heu5m98v6j0h97vvm4w2vhpxqmyww5n5exs8u2hup
-    
-  # Specific rules for different file types
-  - path_regex: secrets/.*\.sops\.env$
-    age: age1hl4rr4czahaj7qma2heu5m98v6j0h97vvm4w2vhpxqmyww5n5exs8u2hup
-    
-  - path_regex: config/.*\.sops\.(yaml|yml)$
-    age: age1hl4rr4czahaj7qma2heu5m98v6j0h97vvm4w2vhpxqmyww5n5exs8u2hup
+  - path_regex: .*\.sops\.(yaml|yml|json|env)$
+    age: YOUR_AGE_PUBLIC_KEY_HERE
+
+# Age key location (set via direnv in .envrc)
+# export SOPS_AGE_KEY_FILE="${PWD}/.secrets/age.key"
