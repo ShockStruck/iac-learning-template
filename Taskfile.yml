@@ -63,28 +63,28 @@ tasks:
     desc: "Initialize repository structure"
     cmds:
       - mkdir -p .secrets secrets examples volumes logs
-      - |
+      - |-
         if [ ! -f secrets/secret.sops.env ]; then
-          cat > secrets/secret.sops.env << 'EOF'
-# Infrastructure as Code Learning Template - Secrets
-# This file will be encrypted with SOPS
+          cat > secrets/secret.sops.env <<- 'EOF'
+        # Infrastructure as Code Learning Template - Secrets
+        # This file will be encrypted with SOPS
 
-# Database secrets
-DATABASE_PASSWORD=changeme-database-password
-ROOT_PASSWORD=changeme-root-password
+        # Database secrets
+        DATABASE_PASSWORD=changeme-database-password
+        ROOT_PASSWORD=changeme-root-password
 
-# Application secrets
-APP_SECRET_KEY=changeme-app-secret-key
-JWT_SECRET=changeme-jwt-secret
+        # Application secrets
+        APP_SECRET_KEY=changeme-app-secret-key
+        JWT_SECRET=changeme-jwt-secret
 
-# External API keys (examples)
-EXTERNAL_API_KEY=your-api-key-here
-THIRD_PARTY_TOKEN=your-token-here
+        # External API keys (examples)
+        EXTERNAL_API_KEY=your-api-key-here
+        THIRD_PARTY_TOKEN=your-token-here
 
-# Monitoring and observability
-GRAFANA_ADMIN_PASSWORD=changeme-grafana-admin
-PROMETHEUS_TOKEN=changeme-prometheus-token
-EOF
+        # Monitoring and observability
+        GRAFANA_ADMIN_PASSWORD=changeme-grafana-admin
+        PROMETHEUS_TOKEN=changeme-prometheus-token
+        EOF
           echo "📝 Created example secrets file: secrets/secret.sops.env"
           echo "    Edit with: task sops:edit -- secrets/secret.sops.env"
         fi
