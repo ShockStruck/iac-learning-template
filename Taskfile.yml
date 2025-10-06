@@ -1,0 +1,118 @@
+---
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+# iac-learning-template/Taskfile.yml
+version: '3'
+
+set: [pipefail]
+shopt: [globstar]
+
+includes:
+  brew: .taskfiles/brew
+  compose: .taskfiles/compose
+  sops: .taskfiles/sops
+  readme: .taskfiles/readme
+  examples: .taskfiles/examples
+
+vars:
+  COMPOSE_FILE: "{{.ROOT_DIR}}/docker-compose.yml"
+  ENC_ENV: "{{.ROOT_DIR}}/secrets/secret.sops.env"
+
+env:
+  SOPS_AGE_KEY_FILE: "{{.ROOT_DIR}}/.secrets/age.key"
+
+tasks:
+  bootstrap:
+    desc: "Full Day-0 bootstrap: install deps, scaffold, generate keys, setup direnv"
+    cmds:
+      # 1. Install CLI tools on macOS
+      - task: brew:install
+      
+      # 2. Scaffold repo structure
+      - task: init
+      
+      # 3. Generate age keypair if missing
+      - task: sops:keygen
+      
+      # 4. Ensure .envrc exists and allow direnv
+      - |
+        if [ ! -f {{.ROOT_DIR}}/.envrc ]; then
+          {
+            echo '# shellcheck disable=SC2148,SC2155'
+            echo ''
+            echo '# SOPS Age key'
+            echo 'export SOPS_AGE_KEY_FILE={{.ROOT_DIR}}/.secrets/age.key'
+            echo ''
+            echo '# Taskfile settings'
+            echo 'export TASK_X_ENV_PRECEDENCE=1'
+            echo 'export TASK_X_MAP_VARIABLES=0'
+          } > {{.ROOT_DIR}}/.envrc
+        fi
+        direnv allow || true
+      
+      # 5. Friendly reminder
+      - |
+        echo "✅ IaC Learning Template bootstrap complete."
+        echo
+        echo "Next steps:"
+        echo "  1) Add secrets with: task sops:edit -- {{.ROOT_DIR}}/secrets/secret.sops.env"
+        echo "  2) Start stack with: task compose:up"
+        echo "  3) Explore examples: task examples:list"
+        echo "  4) Check health:     task compose:ps"
+
+  init:
+    desc: "Initialize repository structure"
+    cmds:
+      - mkdir -p .secrets secrets examples volumes logs
+      - |
+        if [ ! -f secrets/secret.sops.env ]; then
+          cat > secrets/secret.sops.env << 'EOF'
+# Infrastructure as Code Learning Template - Secrets
+# This file will be encrypted with SOPS
+
+# Database secrets
+DATABASE_PASSWORD=changeme-database-password
+ROOT_PASSWORD=changeme-root-password
+
+# Application secrets
+APP_SECRET_KEY=changeme-app-secret-key
+JWT_SECRET=changeme-jwt-secret
+
+# External API keys (examples)
+EXTERNAL_API_KEY=your-api-key-here
+THIRD_PARTY_TOKEN=your-token-here
+
+# Monitoring and observability
+GRAFANA_ADMIN_PASSWORD=changeme-grafana-admin
+PROMETHEUS_TOKEN=changeme-prometheus-token
+EOF
+          echo "📝 Created example secrets file: secrets/secret.sops.env"
+          echo "    Edit with: task sops:edit -- secrets/secret.sops.env"
+        fi
+      - |
+        if [ ! -f .sops.yaml ]; then
+          echo "📝 Created SOPS configuration: .sops.yaml"
+        fi
+
+  health:
+    desc: "Check overall system health"
+    cmds:
+      - task: sops:health
+      - task: compose:ps
+      - |
+        echo
+        echo "=== Overall System Status ==="
+        echo "✅ Ready for IaC learning!"
+
+  clean:
+    desc: "Clean up generated files and volumes"
+    cmds:
+      - task: compose:down
+      - docker system prune -f
+      - |
+        echo "🧹 Cleaned up Docker resources"
+        echo "📁 Local files and secrets preserved"
+
+  learn:
+    desc: "Show available learning examples"
+    cmds:
+      - task: examples:list

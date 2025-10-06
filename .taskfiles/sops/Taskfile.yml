@@ -1,0 +1,144 @@
+---
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+version: '3'
+
+vars:
+  AGE_FILE: "{{.ROOT_DIR}}/.secrets/age.key"
+  SOPS_CONFIG_FILE: "{{.ROOT_DIR}}/.sops.yaml"
+  SECRETS_DIR: "{{.ROOT_DIR}}/secrets"
+
+tasks:
+  keygen:
+    desc: "Generate Age key for SOPS encryption"
+    cmd: age-keygen --output {{.AGE_FILE}}
+    status: ["test -f {{.AGE_FILE}}"]
+    
+  encrypt:
+    desc: "Encrypt all unencrypted SOPS secrets files"
+    cmds:
+      - |
+        set -euo pipefail
+        files=$(find "{{.SECRETS_DIR}}" -type f -name "*.sops.*" -exec grep -L "ENC\[AES256_GCM\|sops:" {} \; 2>/dev/null || true)
+        
+        if [ -z "$files" ]; then
+          echo "ℹ️  No unencrypted *.sops.* files found in {{.SECRETS_DIR}}"
+          exit 0
+        fi
+        
+        changed=0
+        for f in $files; do
+          echo "🔐 Encrypting: ${f#{{.SECRETS_DIR}}/}"
+          
+          # Infer types from extension
+          case "$f" in
+            *.env)  IT=dotenv; OT=dotenv ;;
+            *.yaml|*.yml) IT=yaml; OT=yaml ;;
+            *.json) IT=json; OT=json ;;
+            *) echo "[skip] Unsupported extension: $f" >&2; continue ;;
+          esac
+          
+          sops -e --input-type "$IT" --output-type "$OT" "$f" > "$f.tmp"
+          mv "$f.tmp" "$f"
+          changed=$((changed+1))
+        done
+        echo "✅ Done. Newly encrypted: $changed file(s)."
+
+  decrypt:
+    desc: "Decrypt a SOPS encrypted file to stdout"
+    cmd: sops --decrypt {{.CLI_ARGS}}
+    requires:
+      vars: [CLI_ARGS]
+    preconditions:
+      - msg: Missing SOPS Age key file
+        sh: test -f {{.AGE_FILE}}
+
+  edit:
+    desc: "Edit an encrypted SOPS file (decrypts temporarily for editing)"
+    cmd: sops {{.CLI_ARGS}}
+    requires:
+      vars: [CLI_ARGS]
+    preconditions:
+      - msg: Missing SOPS config file
+        sh: test -f {{.SOPS_CONFIG_FILE}}
+      - msg: Missing SOPS Age key file
+        sh: test -f {{.AGE_FILE}}
+
+  health:
+    desc: "Check SOPS health and validate decryption functionality"
+    cmds:
+      - |
+        echo "=== SOPS Health Check ==="
+        failed=0
+        
+        # Check Age key
+        if [ ! -f "{{.AGE_FILE}}" ]; then
+          echo "❌ Age key missing: {{.AGE_FILE}}"
+          echo "    Generate with: task sops:keygen"
+          failed=1
+        else
+          echo "✅ Age key exists"
+          echo "    Public key: $(age-keygen -y {{.AGE_FILE}} 2>/dev/null || echo 'Error reading key')"
+        fi
+        
+        # Check SOPS config
+        if [ ! -f "{{.SOPS_CONFIG_FILE}}" ]; then
+          echo "❌ SOPS config missing: {{.SOPS_CONFIG_FILE}}"
+          failed=1
+        else
+          echo "✅ SOPS config exists"
+        fi
+        
+        # Test decryption
+        encrypted_file=$(find "{{.SECRETS_DIR}}" -type f -name "*.sops.*" -exec grep -l "ENC\[AES256_GCM\|sops:" {} \; 2>/dev/null | head -1)
+        if [ -n "$encrypted_file" ]; then
+          echo "🔐 Testing decryption on: ${encrypted_file#{{.SECRETS_DIR}}/}"
+          if sops --decrypt "$encrypted_file" >/dev/null 2>&1; then
+            echo "✅ Decryption test successful"
+          else
+            echo "❌ Decryption test failed - check Age key and SOPS config"
+            failed=1
+          fi
+        else
+          echo "ℹ️  No encrypted files found for testing"
+        fi
+        
+        if [ "$failed" -eq 0 ]; then
+          echo
+          echo "🎉 SOPS health check PASSED - ready for secret management!"
+        else
+          echo
+          echo "💥 SOPS health check FAILED - fix issues above"
+          exit 1
+        fi
+
+  status:
+    desc: "Show SOPS configuration and secret file status"
+    cmds:
+      - |
+        echo "=== SOPS Configuration Status ==="
+        echo "Age key file: {{.AGE_FILE}}"
+        if [ -f "{{.AGE_FILE}}" ]; then
+          echo "✅ Age key exists"
+        else
+          echo "❌ Age key missing - run 'task sops:keygen'"
+        fi
+        echo
+        echo "SOPS config: {{.SOPS_CONFIG_FILE}}"
+        if [ -f "{{.SOPS_CONFIG_FILE}}" ]; then
+          echo "✅ SOPS config exists"
+        else
+          echo "❌ SOPS config missing"
+        fi
+        echo
+        echo "Secrets directory: {{.SECRETS_DIR}}"
+        if [ -d "{{.SECRETS_DIR}}" ]; then
+          encrypted_count=$(find "{{.SECRETS_DIR}}" -type f -name "*.sops.*" -exec grep -l "ENC\[AES256_GCM\|sops:" {} \; 2>/dev/null | wc -l)
+          unencrypted_count=$(find "{{.SECRETS_DIR}}" -type f -name "*.sops.*" -exec grep -L "ENC\[AES256_GCM\|sops:" {} \; 2>/dev/null | wc -l)
+          total_secrets=$(find "{{.SECRETS_DIR}}" -type f -name "*.sops.*" 2>/dev/null | wc -l)
+          echo "📁 Secrets directory exists"
+          echo "🔒 Encrypted files: $encrypted_count"
+          echo "🔓 Unencrypted files: $unencrypted_count"
+          echo "📄 Total secret files: $total_secrets"
+        else
+          echo "❌ Secrets directory missing"
+        fi

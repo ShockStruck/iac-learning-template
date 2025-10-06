@@ -1,0 +1,147 @@
+# IaC Learning Template - .gitignore
+
+# === SECURITY ===
+# Never commit unencrypted secrets
+*.key
+*.pem
+*.p12
+*.pfx
+.secrets/
+
+# Age keys (SOPS encryption)
+# Note: Only .secrets/age.key should exist, but be extra safe
+age.key
+key.txt
+
+# Environment files (unless .sops.env which should be encrypted)
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+
+# === DOCKER ===
+# Docker Compose override files
+docker-compose.override.yml
+docker-compose.local.yml
+
+# Docker volumes and logs
+volumes/
+logs/
+*.log
+
+# === DEVELOPMENT ===
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Linux
+*~
+
+# === TASK AND BUILD ===
+# Task runner temporary files
+.task/
+dist/
+build/
+out/
+
+# === TERRAFORM (if used) ===
+# Terraform state files
+*.tfstate
+*.tfstate.*
+*.tfvars
+.terraform/
+.terraform.lock.hcl
+crash.log
+crash.*.log
+
+# === ANSIBLE (if used) ===
+# Ansible vault files
+vault.yml
+*.vault
+
+# Ansible retry files
+*.retry
+
+# === KUBERNETES (if used) ===
+# Kubeconfig files
+kubeconfig
+*.kubeconfig
+
+# === NODE.JS (if using Node tools) ===
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+yarn.lock
+
+# === PYTHON (if using Python tools) ===
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# === BACKUP AND TEMPORARY ===
+# Backup files
+*.bak
+*.backup
+*.old
+*.orig
+*.tmp
+
+# Temporary directories
+tmp/
+temp/
+
+# === MONITORING AND LOGS ===
+# Application logs
+logs/
+*.log
+
+# Monitoring data
+monitoring/data/
+grafana/data/
+prometheus/data/
+
+# === PROJECT SPECIFIC ===
+# Learning artifacts that shouldn't be committed
+learning-notes/
+scratch/
+experiments/
+
+# Generated documentation
+docs/generated/
+
+# Test artifacts
+test-results/
+coverage/
