@@ -38,6 +38,7 @@ tasks:
   basic:
     desc: "Start basic web application stack (web + database + cache)"
     cmds:
+      - task: init
       - task: generate
       - |
         echo "🔄 Starting basic IaC learning stack..."
@@ -61,6 +62,7 @@ tasks:
   monitoring:
     desc: "Start full stack with monitoring (Prometheus + Grafana)"
     cmds:
+      - task: init
       - task: generate
       - |
         echo "📊 Starting monitoring stack..."
@@ -84,6 +86,7 @@ tasks:
   advanced:
     desc: "Start advanced stack with load balancer and all features"
     cmds:
+      - task: init
       - task: generate
       - |
         echo "🚀 Starting advanced IaC learning stack..."
@@ -135,6 +138,7 @@ tasks:
   networking:
     desc: "Explore Docker networking concepts"
     cmds:
+      - task: init
       - task: generate
       - |
         echo "🌐 Docker Networking Learning"
@@ -159,6 +163,7 @@ tasks:
   persistence:
     desc: "Explore data persistence and volume management"
     cmds:
+      - task: init
       - task: generate
       - |
         echo "📁 Data Persistence Learning"
@@ -186,6 +191,7 @@ tasks:
   backup:
     desc: "Demonstrate backup strategies"
     cmds:
+      - task: init
       - task: generate
       - |
         echo "💾 Backup Strategy Demo"
@@ -207,6 +213,7 @@ tasks:
   scaling:
     desc: "Demonstrate horizontal scaling patterns"
     cmds:
+      - task: init
       - task: generate
       - |
         echo "📈 Horizontal Scaling Demo"

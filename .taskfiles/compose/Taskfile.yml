@@ -8,6 +8,11 @@ tasks:
     cmds:
       - |
         echo "🚀 Starting IaC Learning Stack..."
+        if [ ! -f "{{.ENC_ENV}}" ]; then
+          echo "❌ Secrets file not found: {{.ENC_ENV}}"
+          echo "   Run: task init"
+          exit 1
+        fi
         if grep -q "sops_" {{.ENC_ENV}} 2>/dev/null; then
           echo "🔐 Using SOPS encrypted secrets"
           export $(sops --decrypt {{.ENC_ENV}} | grep -v '^#' | xargs) && docker compose -f {{.COMPOSE_FILE}} up -d
@@ -25,6 +30,11 @@ tasks:
     cmds:
       - |
         echo "🛑 Stopping IaC Learning Stack..."
+        if [ ! -f "{{.ENC_ENV}}" ]; then
+          echo "❌ Secrets file not found: {{.ENC_ENV}}"
+          echo "   Run: task init"
+          exit 1
+        fi
         if grep -q "sops_" {{.ENC_ENV}} 2>/dev/null; then
           export $(sops --decrypt {{.ENC_ENV}} | grep -v '^#' | xargs) && docker compose -f {{.COMPOSE_FILE}} down
         else
@@ -37,6 +47,11 @@ tasks:
     cmds:
       - |
         echo "📊 IaC Learning Stack Status:"
+        if [ ! -f "{{.ENC_ENV}}" ]; then
+          echo "❌ Secrets file not found: {{.ENC_ENV}}"
+          echo "   Run: task init"
+          exit 1
+        fi
         if grep -q "sops_" {{.ENC_ENV}} 2>/dev/null; then
           export $(sops --decrypt {{.ENC_ENV}} | grep -v '^#' | xargs) && docker compose -f {{.COMPOSE_FILE}} ps
         else
@@ -52,6 +67,11 @@ tasks:
         else
           echo "📋 Tailing logs for all services"
         fi
+        if [ ! -f "{{.ENC_ENV}}" ]; then
+          echo "❌ Secrets file not found: {{.ENC_ENV}}"
+          echo "   Run: task init"
+          exit 1
+        fi
         if grep -q "sops_" {{.ENC_ENV}} 2>/dev/null; then
           export $(sops --decrypt {{.ENC_ENV}} | grep -v '^#' | xargs) && docker compose -f {{.COMPOSE_FILE}} logs -f {{.CLI_ARGS}}
         else
@@ -66,6 +86,11 @@ tasks:
           echo "❌ Please specify a service to restart"
           echo "📋 Available services:"
           task compose:ps
+          exit 1
+        fi
+        if [ ! -f "{{.ENC_ENV}}" ]; then
+          echo "❌ Secrets file not found: {{.ENC_ENV}}"
+          echo "   Run: task init"
           exit 1
         fi
         echo "🔄 Restarting service: {{.CLI_ARGS}}"
@@ -85,6 +110,11 @@ tasks:
           echo "📋 Example: task compose:exec -- web bash"
           exit 1
         fi
+        if [ ! -f "{{.ENC_ENV}}" ]; then
+          echo "❌ Secrets file not found: {{.ENC_ENV}}"
+          echo "   Run: task init"
+          exit 1
+        fi
         args=({{.CLI_ARGS}})
         service=${args[0]}
         command=${args[@]:1}
@@ -100,6 +130,11 @@ tasks:
     cmds:
       - |
         echo "🔨 Building IaC Learning Stack..."
+        if [ ! -f "{{.ENC_ENV}}" ]; then
+          echo "❌ Secrets file not found: {{.ENC_ENV}}"
+          echo "   Run: task init"
+          exit 1
+        fi
         if grep -q "sops_" {{.ENC_ENV}} 2>/dev/null; then
           export $(sops --decrypt {{.ENC_ENV}} | grep -v '^#' | xargs) && docker compose -f {{.COMPOSE_FILE}} build
         else
